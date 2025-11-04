@@ -44,12 +44,12 @@
         <!-- Formulário Principal -->
         <form id="report-form" class="space-y-6">
 
-            <!-- Seção 1: Seleção OPM e Viaturas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg">
+            <!-- Seção 1: OPM, Viaturas e Efetivo -->
+            <!-- Modificado para grid-cols-3 para acomodar o novo campo -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 border border-gray-200 rounded-lg">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">OPM (Obrigatório)</label>
-                    <!-- Substituído o <select> por botões de rádio estilizados -->
-                    <div id="opm-radio-group" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                    <div id="opm-radio-group" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-2 mt-2">
                         <div>
                             <input type="radio" id="opm-sede" name="opm" value="Sede" class="sr-only peer" required>
                             <label for="opm-sede"
@@ -89,6 +89,34 @@
                         <option value="2">2</option>
                         <option value="3">3</option>
                         <option value="4">4</option>
+                    </select>
+                </div>
+                <!-- NOVO CAMPO: Efetivo Empregado -->
+                <div>
+                    <label for="efetivo" class="block text-sm font-medium text-gray-700 mb-1">Efetivo
+                        empregado</label>
+                    <select id="efetivo" name="efetivo" required
+                        class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
                     </select>
                 </div>
             </div>
@@ -146,9 +174,9 @@
                             class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="form-group">
-                        <label for="pessoas-dpc" class="block text-sm font-medium text-gray-700">Pessoas
-                            encaminhadas a DPC</label>
-                        <input type="number" id="pessoas-dpc" value="" min="0"
+                        <label for="pessoas-dp" class="block text-sm font-medium text-gray-700">Pessoas
+                            encaminhadas a DP</label>
+                        <input type="number" id="pessoas-dp" value="" min="0"
                             class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="form-group">
@@ -337,7 +365,7 @@
                 button.classList.add('bg-green-600');
             } catch (err) {
                 console.error('Falha ao copiar: ', err);
-                feedbackElement.textContent = 'Falha ao copiar. Tente manualmente.';
+                feedbackElement.textContent = 'Falha ao copiar. Tente manually.';
             }
 
             // Remove o textarea e reverte o botão após 2 segundos
@@ -389,6 +417,8 @@
                 const reportData = {
                     opm: opm,
                     viaturas: document.getElementById('viaturas').value,
+                    // Coleta do novo campo Efetivo
+                    efetivo: document.getElementById('efetivo').value,
                     veiculosAbordados: formatValue(document.getElementById('veiculos-abordados').value),
                     pessoasAbordadas: formatValue(document.getElementById('pessoas-abordadas').value),
                     aits: formatValue(document.getElementById('aits').value),
@@ -397,7 +427,7 @@
                     veiculosFisc: formatValue(document.getElementById('veiculos-apreendidos-fisc').value),
                     veiculosRecuperados: formatValue(document.getElementById('veiculos-recuperados').value),
                     armas: formatValue(document.getElementById('armas-apreendidas').value),
-                    pessoasDpc: formatValue(document.getElementById('pessoas-dpc').value),
+                    pessoasDp: formatValue(document.getElementById('pessoas-dp').value),
                     menores: formatValue(document.getElementById('menores-apreendidos').value),
                     pessoasPresas: formatValue(document.getElementById('pessoas-presas').value),
                     mandados: formatValue(document.getElementById('mandados-prisao').value),
@@ -418,10 +448,12 @@
                 const newHeader = `*🚔🚨 14ª CIPM - ${reportData.opm} 🚨🚔*`;
 
                 // Montagem da string de saída (sem a linha "OPM:" antiga)
+                // Adicionada a linha Efetivo empregado
                 const reportString = `
 ${newHeader}
 ${tituloFormatado}
 Viaturas Empregadas: ${reportData.viaturas}
+Efetivo empregado: ${reportData.efetivo}
 ---
 Veículos abordados: ${reportData.veiculosAbordados}
 Pessoas abordadas: ${reportData.pessoasAbordadas}
@@ -431,7 +463,7 @@ Veículos Apreendidos (crime): ${reportData.veiculosCrime}
 Veículos Apreendidos (fiscalização): ${reportData.veiculosFisc}
 Veículos Recuperados: ${reportData.veiculosRecuperados}
 Armas de fogo apreendidas: ${reportData.armas}
-Pessoas encaminhadas a DPC: ${reportData.pessoasDpc}
+Pessoas encaminhadas a DP: ${reportData.pessoasDp}
 Menores apreendidos: ${reportData.menores}
 Pessoas Presas flagrante/TCO: ${reportData.pessoasPresas}
 Mandados de Prisões cumpridos: ${reportData.mandados}
@@ -495,7 +527,7 @@ Observação: ${reportData.obs}
             limparBtn.addEventListener('click', () => {
                 form.reset(); // Reseta todos os campos do formulário
                 feedbackElement.textContent = ''; // Limpa mensagens de feedback
-                previewContainer.classList.add('hidden'); // Oculta a visualização
+                previewContainer.classList.add('hidden'); // Oculta a visualZização
                 // Garante que o botão de cópia volte ao normal
                 generateButton.textContent = 'Gerar Relatório e Copiar';
                 generateButton.classList.remove('bg-green-600');
@@ -507,5 +539,4 @@ Observação: ${reportData.obs}
 </body>
 
 </html>
-
 
