@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Resumo de Serviço</title>
+    <!-- Carrega o Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para a fonte Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Adiciona um estilo para os inputs numéricos não terem setas (opcional, mas limpo) */
+        input[type='number']::-webkit-inner-spin-button,
+        input[type='number']::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type='number'] {
+            -moz-appearance: textfield;
+        }
+    </style>
+    <!-- Importa a fonte Inter do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 text-gray-900 p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md">
+
+        <!-- Cabeçalho com Título Dinâmico -->
+        <div class="mb-6 text-center">
+            <h1 id="titulo-relatorio" class="text-2xl md:text-3xl font-bold text-blue-700">
+                Carregando título...
+            </h1>
+        </div>
+
+        <!-- Formulário Principal -->
+        <form id="report-form" class="space-y-6">
+
+            <!-- Seção 1: Seleção OPM e Viaturas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-gray-200 rounded-lg">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">OPM (Obrigatório)</label>
+                    <!-- Substituído o <select> por botões de rádio estilizados -->
+                    <div id="opm-radio-group" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                        <div>
+                            <input type="radio" id="opm-sede" name="opm" value="Sede" class="sr-only peer" required>
+                            <label for="opm-sede"
+                                class="block w-full p-2 text-center border border-gray-300 rounded-md cursor-pointer peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-gray-50 transition-colors">
+                                Sede
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" id="opm-iguatemi" name="opm" value="2° PEL Iguatemi" class="sr-only peer">
+                            <label for="opm-iguatemi"
+                                class="block w-full p-2 text-center border border-gray-300 rounded-md cursor-pointer peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-gray-50 transition-colors">
+                                Iguatemi
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" id="opm-japora" name="opm" value="3° PEL Japorã" class="sr-only peer">
+                            <label for="opm-japora"
+                                class="block w-full p-2 text-center border border-gray-300 rounded-md cursor-pointer peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-gray-50 transition-colors">
+                                Japorã
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" id="opm-eldorado" name="opm" value="4°PEL Eldorado" class="sr-only peer">
+                            <label for="opm-eldorado"
+                                class="block w-full p-2 text-center border border-gray-300 rounded-md cursor-pointer peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-gray-50 transition-colors">
+                                Eldorado
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="viaturas" class="block text-sm font-medium text-gray-700 mb-1">Viaturas Empregadas
+                        (Obrigatório)</label>
+                    <select id="viaturas" name="viaturas" required
+                        class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Seção 2: Entradas Numéricas -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Estatísticas</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <!-- Lista de campos numéricos -->
+                    <div class="form-group">
+                        <label for="veiculos-abordados"
+                            class="block text-sm font-medium text-gray-700">Veículos abordados</label>
+                        <input type="number" id="veiculos-abordados" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="pessoas-abordadas"
+                            class="block text-sm font-medium text-gray-700">Pessoas abordadas</label>
+                        <input type="number" id="pessoas-abordadas" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="aits" class="block text-sm font-medium text-gray-700">AITs</label>
+                        <input type="number" id="aits" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="sinistros" class="block text-sm font-medium text-gray-700">Sinistros
+                            Atendidos</label>
+                        <input type="number" id="sinistros" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="veiculos-apreendidos-crime"
+                            class="block text-sm font-medium text-gray-700">Veículos Apreendidos (crime)</label>
+                        <input type="number" id="veiculos-apreendidos-crime" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="veiculos-apreendidos-fisc"
+                            class="block text-sm font-medium text-gray-700">Veículos Apreendidos (fisc.)</label>
+                        <input type="number" id="veiculos-apreendidos-fisc" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="veiculos-recuperados"
+                            class="block text-sm font-medium text-gray-700">Veículos Recuperados</label>
+                        <input type="number" id="veiculos-recuperados" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="armas-apreendidas" class="block text-sm font-medium text-gray-700">Armas de fogo
+                            apreendidas</label>
+                        <input type="number" id="armas-apreendidas" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="pessoas-dpc" class="block text-sm font-medium text-gray-700">Pessoas
+                            encaminhadas a DPC</label>
+                        <input type="number" id="pessoas-dpc" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="menores-apreendidos"
+                            class="block text-sm font-medium text-gray-700">Menores apreendidos</label>
+                        <input type="number" id="menores-apreendidos" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="pessoas-presas" class="block text-sm font-medium text-gray-700">Pessoas Presas
+                            flagrante/TCO</label>
+                        <input type="number" id="pessoas-presas" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="mandados-prisao" class="block text-sm font-medium text-gray-700">Mandados de
+                            Prisões cumpridos</label>
+                        <input type="number" id="mandados-prisao" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="palestras-proerd" class="block text-sm font-medium text-gray-700">Palestras
+                            PROERD</label>
+                        <input type="number" id="palestras-proerd" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="mpu-fiscalizadas" class="block text-sm font-medium text-gray-700">MPU
+                            fiscalizadas</label>
+                        <input type="number" id="mpu-fiscalizadas" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="palestras-transito" class="block text-sm font-medium text-gray-700">Palestras de
+                            Trânsito (Escolas)</label>
+                        <input type="number" id="palestras-transito" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group">
+                        <label for="palestras-promuse-escolas" class="block text-sm font-medium text-gray-700">Palestras
+                            Promuse (Escolas)</label>
+                        <input type="number" id="palestras-promuse-escolas" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="form-group col-span-2 sm:col-span-3 md:col-span-2">
+                        <label for="palestras-promuse-fabricas"
+                            class="block text-sm font-medium text-gray-700">Palestras
+                            Promuse/Transito (Fábricas)</label>
+                        <input type="number" id="palestras-promuse-fabricas" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 3: Textos Livres -->
+            <div class="p-4 border border-gray-200 rounded-lg space-y-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Descrições</h2>
+
+                <div>
+                    <label for="drogas-apreendidas" class="block text-sm font-medium text-gray-700">Drogas
+                        apreendidas</label>
+                    <textarea id="drogas-apreendidas" rows="3"
+                        placeholder="Ex: 100kg de maconha, 2kg de cocaína..."
+                        class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+
+                <div>
+                    <label for="outras-apreensoes" class="block text-sm font-medium text-gray-700">Outras
+                        apreensões</label>
+                    <textarea id="outras-apreensoes" rows="3"
+                        placeholder="Ex: Contrabando, descaminho, etc..."
+                        class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-1">
+                        <label for="quantidade-ros" class="block text-sm font-medium text-gray-700">Quantidade de
+                            RO's</label>
+                        <input type="number" id="quantidade-ros" value="" min="0"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="descricao-ros" class="block text-sm font-medium text-gray-700">Descrição/Números dos
+                            RO's</label>
+                        <textarea id="descricao-ros" rows="2" placeholder="Ex: RO 123 (Tráfico), RO 124 (Vistoria)..."
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="observacao" class="block text-sm font-medium text-gray-700">Observação (Opcional)</label>
+                    <textarea id="observacao" rows="3" placeholder="Alguma informação adicional..."
+                        class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+
+            </div>
+
+            <!-- Seção 4: Botão de Ação -->
+            <div class="mt-8 text-center space-y-4">
+                <div class="flex flex-col sm:flex-row gap-2 justify-center">
+                    <button type="button" id="generate-copy-btn"
+                        class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 order-1">
+                        Gerar Relatório e Copiar
+                    </button>
+                    <button type="button" id="visualizar-btn"
+                        class="w-full sm:w-auto px-6 py-3 bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 order-2">
+                        Visualizar
+                    </button>
+                    <button type="button" id="limpar-btn"
+                        class="w-full sm:w-auto px-6 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 order-3">
+                        Limpar
+                    </button>
+                </div>
+                <p id="copy-feedback" class="text-green-600 font-medium mt-2 h-4"></p>
+            </div>
+        </form>
+
+        <!-- Seção 5: Visualização (oculta por padrão) -->
+        <div id="preview-container" class="mt-8 p-4 border border-gray-300 rounded-lg bg-gray-50 hidden">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Visualização do Relatório</h3>
+            <pre id="preview-content" class="whitespace-pre-wrap w-full text-sm font-mono bg-white p-4 rounded-md overflow-x-auto"></pre>
+        </div>
+
+    </div>
+
+    <script>
+        // Variável global para armazenar o título formatado
+        let tituloFormatado = "";
+
+        // Função para formatar valores (se vazio ou 0, retorna '0', senão retorna o valor)
+        function formatValue(value) {
+            return value || '0';
+        }
+
+        // Função para formatar texto (se vazio, retorna 'Nada a constar')
+        function formatText(text) {
+            return text.trim() || 'Nada a constar';
+        }
+
+        // Função para definir o título dinâmico
+        function setDynamicTitle() {
+            const hoje = new Date();
+            const ontem = new Date(hoje);
+            ontem.setDate(hoje.getDate() - 1);
+
+            const diaAnterior = ontem.getDate();
+            const diaAtual = hoje.getDate();
+            const mes = hoje.getMonth() + 1; // Meses são 0-indexados
+            const ano = hoje.getFullYear();
+
+            // Formata para garantir dois dígitos (ex: 01/05/2024)
+            const diaAnteriorFmt = String(diaAnterior).padStart(2, '0');
+            const diaAtualFmt = String(diaAtual).padStart(2, '0');
+            const mesFmt = String(mes).padStart(2, '0');
+
+            tituloFormatado = `Resumo do serviço do dia ${diaAnteriorFmt} para o dia ${diaAtualFmt}/${mesFmt}/${ano}`;
+            document.getElementById('titulo-relatorio').textContent = tituloFormatado;
+        }
+
+        // Função para copiar texto para a área de transferência
+        function copyToClipboard(text, button, feedbackElement) {
+            // Cria um textarea temporário
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = text;
+            tempTextarea.setAttribute('readonly', '');
+            tempTextarea.style.position = 'absolute';
+            tempTextarea.style.left = '-9999px';
+            document.body.appendChild(tempTextarea);
+
+            // Seleciona e copia o texto
+            tempTextarea.select();
+            try {
+                document.execCommand('copy');
+                // Feedback visual
+                feedbackElement.textContent = 'Relatório copiado com sucesso!';
+                button.textContent = 'Copiado!';
+                button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                button.classList.add('bg-green-600');
+            } catch (err) {
+                console.error('Falha ao copiar: ', err);
+                feedbackElement.textContent = 'Falha ao copiar. Tente manualmente.';
+            }
+
+            // Remove o textarea e reverte o botão após 2 segundos
+            document.body.removeChild(tempTextarea);
+
+            setTimeout(() => {
+                feedbackElement.textContent = '';
+                button.textContent = 'Gerar Relatório e Copiar';
+                button.classList.remove('bg-green-600');
+                button.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            }, 2000);
+        }
+
+        // Evento principal quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            setDynamicTitle();
+
+            const generateButton = document.getElementById('generate-copy-btn');
+            const feedbackElement = document.getElementById('copy-feedback');
+            const form = document.getElementById('report-form');
+            
+            // Novos botões
+            const limparBtn = document.getElementById('limpar-btn');
+            const visualizarBtn = document.getElementById('visualizar-btn');
+            const previewContainer = document.getElementById('preview-container');
+            const previewContent = document.getElementById('preview-content');
+
+            // Função Refatorada para Gerar a String do Relatório
+            function generateReportString() {
+                // Validação simples
+                const opmRadio = document.querySelector('input[name="opm"]:checked');
+                const opm = opmRadio ? opmRadio.value : "";
+                
+                if (!opm) {
+                    feedbackElement.textContent = 'Por favor, selecione a OPM.';
+                    feedbackElement.classList.remove('text-green-600');
+                    feedbackElement.classList.add('text-red-600');
+                    
+                    setTimeout(() => {
+                         feedbackElement.textContent = '';
+                         feedbackElement.classList.remove('text-red-600');
+                         feedbackElement.classList.add('text-green-600');
+                    }, 2000);
+                    return null; // Retorna nulo se inválido
+                }
+
+                // Coleta de todos os dados
+                const reportData = {
+                    opm: opm,
+                    viaturas: document.getElementById('viaturas').value,
+                    veiculosAbordados: formatValue(document.getElementById('veiculos-abordados').value),
+                    pessoasAbordadas: formatValue(document.getElementById('pessoas-abordadas').value),
+                    aits: formatValue(document.getElementById('aits').value),
+                    sinistros: formatValue(document.getElementById('sinistros').value),
+                    veiculosCrime: formatValue(document.getElementById('veiculos-apreendidos-crime').value),
+                    veiculosFisc: formatValue(document.getElementById('veiculos-apreendidos-fisc').value),
+                    veiculosRecuperados: formatValue(document.getElementById('veiculos-recuperados').value),
+                    armas: formatValue(document.getElementById('armas-apreendidas').value),
+                    pessoasDpc: formatValue(document.getElementById('pessoas-dpc').value),
+                    menores: formatValue(document.getElementById('menores-apreendidos').value),
+                    pessoasPresas: formatValue(document.getElementById('pessoas-presas').value),
+                    mandados: formatValue(document.getElementById('mandados-prisao').value),
+                    proerd: formatValue(document.getElementById('palestras-proerd').value),
+                    mpu: formatValue(document.getElementById('mpu-fiscalizadas').value),
+                    palestrasTransito: formatValue(document.getElementById('palestras-transito').value),
+                    palestrasPromuseEscolas: formatValue(document.getElementById('palestras-promuse-escolas').value),
+                    palestrasPromuseFabricas: formatValue(document.getElementById('palestras-promuse-fabricas').value),
+                    drogas: formatText(document.getElementById('drogas-apreendidas').value),
+                    outrasApreensoes: formatText(document.getElementById('outras-apreensoes').value),
+                    qtdRos: formatValue(document.getElementById('quantidade-ros').value),
+                    descRos: formatText(document.getElementById('descricao-ros').value),
+                    obs: formatText(document.getElementById('observacao').value)
+                };
+
+                // --- MODIFICAÇÃO DO CABEÇALHO ---
+                // Novo cabeçalho conforme solicitado
+                const newHeader = `*🚔🚨 14ª CIPM - ${reportData.opm} 🚨🚔*`;
+
+                // Montagem da string de saída (sem a linha "OPM:" antiga)
+                const reportString = `
+${newHeader}
+${tituloFormatado}
+Viaturas Empregadas: ${reportData.viaturas}
+---
+Veículos abordados: ${reportData.veiculosAbordados}
+Pessoas abordadas: ${reportData.pessoasAbordadas}
+AITs: ${reportData.aits}
+Sinistros de Trânsito Atendidos: ${reportData.sinistros}
+Veículos Apreendidos (crime): ${reportData.veiculosCrime}
+Veículos Apreendidos (fiscalização): ${reportData.veiculosFisc}
+Veículos Recuperados: ${reportData.veiculosRecuperados}
+Armas de fogo apreendidas: ${reportData.armas}
+Pessoas encaminhadas a DPC: ${reportData.pessoasDpc}
+Menores apreendidos: ${reportData.menores}
+Pessoas Presas flagrante/TCO: ${reportData.pessoasPresas}
+Mandados de Prisões cumpridos: ${reportData.mandados}
+Palestras PROERD: ${reportData.proerd}
+MPU fiscalizadas: ${reportData.mpu}
+Palestras de Trânsito nas Escolas: ${reportData.palestrasTransito}
+Palestras Promuse nas Escolas: ${reportData.palestrasPromuseEscolas}
+Palestras Promuse/Transito em Fábricas ou Indústrias: ${reportData.palestrasPromuseFabricas}
+---
+Drogas apreendidas: ${reportData.drogas}
+Outras apreensões: ${reportData.outrasApreensoes}
+Quantidade de RO's: ${reportData.qtdRos}
+Descrição/Numeros dos RO's: ${reportData.descRos}
+Observação: ${reportData.obs}
+`.trim(); // .trim() remove espaços em branco extras no início e fim
+
+                return reportString;
+            }
+
+            // Evento do Botão Gerar e Copiar
+            generateButton.addEventListener('click', () => {
+                const reportString = generateReportString();
+                if (reportString) {
+                    // Copiar para a área de transferência
+                    copyToClipboard(reportString, generateButton, feedbackElement);
+                    // Oculta a visualização se estiver aberta
+                    previewContainer.classList.add('hidden');
+                }
+            });
+
+            // Evento do Botão Visualizar
+            visualizarBtn.addEventListener('click', () => {
+                const reportString = generateReportString();
+                if (reportString) {
+                    previewContent.textContent = reportString;
+                    previewContainer.classList.remove('hidden');
+                    // Rola para a visualização
+                    previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+
+            // Evento do Botão Limpar
+            limparBtn.addEventListener('click', () => {
+                form.reset(); // Reseta todos os campos do formulário
+                feedbackElement.textContent = ''; // Limpa mensagens de feedback
+                previewContainer.classList.add('hidden'); // Oculta a visualização
+                // Garante que o botão de cópia volte ao normal
+                generateButton.textContent = 'Gerar Relatório e Copiar';
+                generateButton.classList.remove('bg-green-600');
+                generateButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            });
+        });
+    </script>
+
+</body>
+
+</html>
+
