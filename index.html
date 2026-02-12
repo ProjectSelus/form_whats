@@ -13,7 +13,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* Adiciona um estilo para os inputs numéricos não terem setas (opcional, mas limpo) */
+        /* Adiciona um estilo para os inputs numéricos não terem setas */
         input[type='number']::-webkit-inner-spin-button,
         input[type='number']::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -39,13 +39,13 @@
             <h1 id="titulo-relatorio" class="text-2xl md:text-3xl font-bold text-blue-700">
                 Carregando título...
             </h1>
+            <p class="text-xs text-gray-500 mt-2">Versão Integrada (WhatsApp + Planilha + TXT)</p>
         </div>
 
         <!-- Formulário Principal -->
         <form id="report-form" class="space-y-6">
 
             <!-- Seção 1: OPM, Viaturas e Efetivo -->
-            <!-- Modificado para grid-cols-3 para acomodar o novo campo -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 border border-gray-200 rounded-lg">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">OPM (Obrigatório)</label>
@@ -129,7 +129,7 @@
                     <!-- NOVO CAMPO: Ocorrências Atendidas -->
                     <div class="form-group col-span-2 sm:col-span-3 md:col-span-2">
                         <label for="ocorrencias-atendidas" class="block text-sm font-medium text-gray-700">Ocorrências Atendidas</label>
-                        <input type="number" id="ocorrencias-atendidas" value="" min="0" placeholder="Qtd ocorrências despachadas ou PREAT"
+                        <input type="number" id="ocorrencias-atendidas" value="" min="0" placeholder="Quantidade de ocorrencias solicitadas encaminhadas"
                             class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
@@ -285,11 +285,7 @@
             <!-- Seção 4: Botão de Ação -->
             <div class="mt-8 text-center space-y-4">
                 <div class="flex flex-col sm:flex-row gap-2 justify-center flex-wrap">
-                    <button type="button" id="generate-copy-btn"
-                        class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 order-1">
-                        Gerar e Copiar
-                    </button>
-                    <!-- Botão WhatsApp Adicionado -->
+                    <!-- Botão WhatsApp (que também aciona download e planilha) -->
                     <button type="button" id="whatsapp-btn"
                         class="w-full sm:w-auto px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 order-2 flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
@@ -307,6 +303,7 @@
                     </button>
                 </div>
                 <p id="copy-feedback" class="text-green-600 font-medium mt-2 h-4"></p>
+                <p id="db-feedback" class="text-blue-600 text-xs mt-1 font-medium"></p>
             </div>
         </form>
 
@@ -318,93 +315,113 @@
 
     </div>
 
-    <script>
-        // Variável global para armazenar o título formatado
+    <!-- Script Principal com Suporte a Módulos para Firebase (Mantido apenas estrutura) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // =========================================================================
+        // CONFIGURAÇÃO DA PLANILHA GOOGLE (COLE O LINK ABAIXO)
+        // =========================================================================
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDLDqgq7I1O9piwzosnMTnCYdm46jhG-uHu1tXMZ8_qMLfYmyjrILiUBz5lb_2QKo/exec";
+
+        // =========================================================================
+        // CONFIGURAÇÃO DO FIREBASE (OPCIONAL/DESATIVADO)
+        // =========================================================================
+        const firebaseConfig = {
+            // apiKey: "SUA_API_KEY",
+        };
+
+        // Lógica de salvamento em planilha
+        async function salvarNaPlanilha(dados) {
+            const feedbackDb = document.getElementById('db-feedback');
+            
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("COLE_SUA_URL")) {
+                feedbackDb.textContent = "⚠️ URL da Planilha não configurada.";
+                return;
+            }
+
+            feedbackDb.textContent = "Enviando para planilha...";
+
+            try {
+                // Adiciona data legível
+                const dadosParaEnviar = {
+                    ...dados,
+                    dataLegivel: new Date().toLocaleString('pt-BR')
+                };
+
+                // Envia como POST request para o script
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Importante para evitar erro de CORS
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dadosParaEnviar)
+                });
+
+                feedbackDb.textContent = "✅ Enviado para planilha!";
+                setTimeout(() => feedbackDb.textContent = "", 3000);
+
+            } catch (error) {
+                console.error('Erro ao salvar na planilha:', error);
+                feedbackDb.textContent = "❌ Erro ao enviar para planilha.";
+            }
+        }
+
+        // --- Código Original da Lógica do Formulário ---
+        
         let tituloFormatado = "";
 
-        // Função para formatar valores (se vazio ou 0, retorna '0', senão retorna o valor)
-        function formatValue(value) {
-            return value || '0';
-        }
+        function formatValue(value) { return value || '0'; }
+        function formatText(text) { return text.trim() || 'Nada a constar'; }
 
-        // Função para formatar texto (se vazio, retorna 'Nada a constar')
-        function formatText(text) {
-            return text.trim() || 'Nada a constar';
-        }
-
-        // Função para definir o título dinâmico
         function setDynamicTitle() {
             const hoje = new Date();
             const ontem = new Date(hoje);
             ontem.setDate(hoje.getDate() - 1);
 
-            const diaAnterior = ontem.getDate();
-            const diaAtual = hoje.getDate();
-            const mes = hoje.getMonth() + 1; // Meses são 0-indexados
+            const diaAnterior = String(ontem.getDate()).padStart(2, '0');
+            const diaAtual = String(hoje.getDate()).padStart(2, '0');
+            const mesFmt = String(hoje.getMonth() + 1).padStart(2, '0');
             const ano = hoje.getFullYear();
 
-            // Formata para garantir dois dígitos (ex: 01/05/2024)
-            const diaAnteriorFmt = String(diaAnterior).padStart(2, '0');
-            const diaAtualFmt = String(diaAtual).padStart(2, '0');
-            const mesFmt = String(mes).padStart(2, '0');
-
-            tituloFormatado = `Resumo do serviço do dia ${diaAnteriorFmt} para o dia ${diaAtualFmt}/${mesFmt}/${ano}`;
+            tituloFormatado = `Resumo do serviço do dia ${diaAnterior} para o dia ${diaAtual}/${mesFmt}/${ano}`;
             document.getElementById('titulo-relatorio').textContent = tituloFormatado;
         }
 
-        // Função para copiar texto para a área de transferência
-        function copyToClipboard(text, button, feedbackElement) {
-            // Cria um textarea temporário
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.value = text;
-            tempTextarea.setAttribute('readonly', '');
-            tempTextarea.style.position = 'absolute';
-            tempTextarea.style.left = '-9999px';
-            document.body.appendChild(tempTextarea);
-
-            // Seleciona e copia o texto
-            tempTextarea.select();
-            try {
-                document.execCommand('copy');
-                // Feedback visual
-                feedbackElement.textContent = 'Relatório copiado com sucesso!';
-                button.textContent = 'Copiado!';
-                button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                button.classList.add('bg-green-600');
-            } catch (err) {
-                console.error('Falha ao copiar: ', err);
-                feedbackElement.textContent = 'Falha ao copiar. Tente manually.';
-            }
-
-            // Remove o textarea e reverte o botão após 2 segundos
-            document.body.removeChild(tempTextarea);
-
-            setTimeout(() => {
-                feedbackElement.textContent = '';
-                button.textContent = 'Gerar Relatório e Copiar';
-                button.classList.remove('bg-green-600');
-                button.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            }, 2000);
+        function downloadTxtFile(content, opm) {
+            const now = new Date();
+            const ano = now.getFullYear();
+            const mes = String(now.getMonth() + 1).padStart(2, '0');
+            const dia = String(now.getDate()).padStart(2, '0');
+            const horas = String(now.getHours()).padStart(2, '0');
+            const minutos = String(now.getMinutes()).padStart(2, '0');
+            const opmSafe = opm.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const filename = `${ano}-${mes}-${dia}-${horas}${minutos}-${opmSafe}.txt`;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const element = document.createElement('a');
+            element.href = URL.createObjectURL(blob);
+            element.download = filename;
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
         }
 
-        // Evento principal quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', () => {
             setDynamicTitle();
 
-            const generateButton = document.getElementById('generate-copy-btn');
             const feedbackElement = document.getElementById('copy-feedback');
             const form = document.getElementById('report-form');
-            
-            // Novos botões
             const limparBtn = document.getElementById('limpar-btn');
             const visualizarBtn = document.getElementById('visualizar-btn');
             const previewContainer = document.getElementById('preview-container');
             const previewContent = document.getElementById('preview-content');
-            const whatsappBtn = document.getElementById('whatsapp-btn'); // Botão WhatsApp
+            const whatsappBtn = document.getElementById('whatsapp-btn');
 
-            // Função Refatorada para Gerar a String do Relatório
             function generateReportString() {
-                // Validação simples
                 const opmRadio = document.querySelector('input[name="opm"]:checked');
                 const opm = opmRadio ? opmRadio.value : "";
                 
@@ -412,22 +429,18 @@
                     feedbackElement.textContent = 'Por favor, selecione a OPM.';
                     feedbackElement.classList.remove('text-green-600');
                     feedbackElement.classList.add('text-red-600');
-                    
                     setTimeout(() => {
                          feedbackElement.textContent = '';
                          feedbackElement.classList.remove('text-red-600');
                          feedbackElement.classList.add('text-green-600');
                     }, 2000);
-                    return null; // Retorna nulo se inválido
+                    return null;
                 }
 
-                // Coleta de todos os dados
-                const reportData = {
+                const rawData = {
                     opm: opm,
                     viaturas: document.getElementById('viaturas').value,
-                    // Coleta do campo Efetivo
                     efetivo: document.getElementById('efetivo').value,
-                    // Coleta do NOVO campo Ocorrências
                     ocorrencias: formatValue(document.getElementById('ocorrencias-atendidas').value),
                     veiculosAbordados: formatValue(document.getElementById('veiculos-abordados').value),
                     pessoasAbordadas: formatValue(document.getElementById('pessoas-abordadas').value),
@@ -453,101 +466,81 @@
                     obs: formatText(document.getElementById('observacao').value)
                 };
 
-                // --- MODIFICAÇÃO DO CABEÇALHO ---
-                // Novo cabeçalho conforme solicitado
-                const newHeader = `*🚔🚨 14ª CIPM - ${reportData.opm} 🚨🚔*`;
+                const newHeader = `*🚔🚨 14ª CIPM - ${rawData.opm} 🚨🚔*`;
 
-                // Montagem da string de saída (sem a linha "OPM:" antiga)
-                // Adicionada a linha Efetivo empregado
                 const reportString = `
 ${newHeader}
 ${tituloFormatado}
-Viaturas Empregadas: ${reportData.viaturas}
-Efetivo empregado: ${reportData.efetivo}
+Viaturas Empregadas: ${rawData.viaturas}
+Efetivo empregado: ${rawData.efetivo}
 ---
-Ocorrências Atendidas: ${reportData.ocorrencias}
-Veículos abordados: ${reportData.veiculosAbordados}
-Pessoas abordadas: ${reportData.pessoasAbordadas}
-AITs: ${reportData.aits}
-Sinistros de Trânsito Atendidos: ${reportData.sinistros}
-Veículos Apreendidos (crime): ${reportData.veiculosCrime}
-Veículos Apreendidos (fiscalização): ${reportData.veiculosFisc}
-Veículos Recuperados: ${reportData.veiculosRecuperados}
-Armas de fogo apreendidas: ${reportData.armas}
-Pessoas encaminhadas a DPC: ${reportData.pessoasDpc}
-Menores apreendidos: ${reportData.menores}
-Pessoas Presas flagrante/TCO: ${reportData.pessoasPresas}
-Mandados de Prisões cumpridos: ${reportData.mandados}
-Palestras PROERD: ${reportData.proerd}
-MPU fiscalizadas: ${reportData.mpu}
-Palestras de Trânsito nas Escolas: ${reportData.palestrasTransito}
-Palestras Promuse nas Escolas: ${reportData.palestrasPromuseEscolas}
-Palestras Promuse/Transito em Fábricas ou Indústrias: ${reportData.palestrasPromuseFabricas}
+Ocorrências Atendidas: ${rawData.ocorrencias}
+Veículos abordados: ${rawData.veiculosAbordados}
+Pessoas abordadas: ${rawData.pessoasAbordadas}
+AITs: ${rawData.aits}
+Sinistros de Trânsito Atendidos: ${rawData.sinistros}
+Veículos Apreendidos (crime): ${rawData.veiculosCrime}
+Veículos Apreendidos (fiscalização): ${rawData.veiculosFisc}
+Veículos Recuperados: ${rawData.veiculosRecuperados}
+Armas de fogo apreendidas: ${rawData.armas}
+Pessoas encaminhadas a DPC: ${rawData.pessoasDpc}
+Menores apreendidos: ${rawData.menores}
+Pessoas Presas flagrante/TCO: ${rawData.pessoasPresas}
+Mandados de Prisões cumpridos: ${rawData.mandados}
+Palestras PROERD: ${rawData.proerd}
+MPU fiscalizadas: ${rawData.mpu}
+Palestras de Trânsito nas Escolas: ${rawData.palestrasTransito}
+Palestras Promuse nas Escolas: ${rawData.palestrasPromuseEscolas}
+Palestras Promuse/Transito em Fábricas ou Indústrias: ${rawData.palestrasPromuseFabricas}
 ---
-Drogas apreendidas: ${reportData.drogas}
-Outras apreensões: ${reportData.outrasApreensoes}
-Quantidade de RO's: ${reportData.qtdRos}
-Descrição/Numeros dos RO's: ${reportData.descRos}
-Observação: ${reportData.obs}
-`.trim(); // .trim() remove espaços em branco extras no início e fim
+Drogas apreendidas: ${rawData.drogas}
+Outras apreensões: ${rawData.outrasApreensoes}
+Quantidade de RO's: ${rawData.qtdRos}
+Descrição/Numeros dos RO's: ${rawData.descRos}
+Observação: ${rawData.obs}
+`.trim();
 
-                return reportString;
+                return { text: reportString, data: rawData };
             }
 
-            // Evento do Botão Gerar e Copiar
-            generateButton.addEventListener('click', () => {
-                const reportString = generateReportString();
-                if (reportString) {
-                    // Copiar para a área de transferência
-                    copyToClipboard(reportString, generateButton, feedbackElement);
-                    // Oculta a visualização se estiver aberta
-                    previewContainer.classList.add('hidden');
-                }
-            });
-
-            // Evento do Botão Visualizar
             visualizarBtn.addEventListener('click', () => {
-                const reportString = generateReportString();
-                if (reportString) {
-                    previewContent.textContent = reportString;
+                const result = generateReportString();
+                if (result) {
+                    previewContent.textContent = result.text;
                     previewContainer.classList.remove('hidden');
-                    // Rola para a visualização
                     previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             });
 
-            // Evento do Botão WhatsApp
             whatsappBtn.addEventListener('click', () => {
-                const reportString = generateReportString();
-                if (reportString) {
-                    // Codifica o texto para ser usado em uma URL
-                    const encodedText = encodeURIComponent(reportString);
-                    // Abre o link do WhatsApp Web/App
+                const result = generateReportString();
+                if (result) {
+                    // 1. Download do Arquivo .txt
+                   // downloadTxtFile(result.text, result.data.opm);
+
+                    // 2. Salvar na Planilha Google
+                    salvarNaPlanilha(result.data);
+
+                    // 3. Abrir WhatsApp
+                    const encodedText = encodeURIComponent(result.text);
                     window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
                     
-                    // Oculta a visualização se estiver aberta
                     previewContainer.classList.add('hidden');
-                    feedbackElement.textContent = 'Abrindo WhatsApp...';
+                    feedbackElement.textContent = 'Baixando, salvando na planilha e abrindo WhatsApp...';
                     setTimeout(() => {
                          feedbackElement.textContent = '';
-                    }, 2000);
+                    }, 4000);
                 }
             });
 
-            // Evento do Botão Limpar
             limparBtn.addEventListener('click', () => {
-                form.reset(); // Reseta todos os campos do formulário
-                feedbackElement.textContent = ''; // Limpa mensagens de feedback
-                previewContainer.classList.add('hidden'); // Oculta a visualZização
-                // Garante que o botão de cópia volte ao normal
-                generateButton.textContent = 'Gerar Relatório e Copiar';
-                generateButton.classList.remove('bg-green-600');
-                generateButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                form.reset();
+                feedbackElement.textContent = '';
+                document.getElementById('db-feedback').textContent = '';
+                previewContainer.classList.add('hidden');
             });
         });
     </script>
 
 </body>
-
 </html>
-
