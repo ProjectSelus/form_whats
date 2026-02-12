@@ -125,6 +125,14 @@
             <div class="p-4 border border-gray-200 rounded-lg">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Estatísticas</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    
+                    <!-- NOVO CAMPO: Ocorrências Atendidas -->
+                    <div class="form-group col-span-2 sm:col-span-3 md:col-span-2">
+                        <label for="ocorrencias-atendidas" class="block text-sm font-medium text-gray-700">Ocorrências Atendidas</label>
+                        <input type="number" id="ocorrencias-atendidas" value="" min="0" placeholder="Quantidade de ocorrencias solicitadas encaminhadas"
+                            class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
                     <!-- Lista de campos numéricos -->
                     <div class="form-group">
                         <label for="veiculos-abordados"
@@ -174,9 +182,9 @@
                             class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="form-group">
-                        <label for="pessoas-dp" class="block text-sm font-medium text-gray-700">Pessoas
-                            encaminhadas a DP</label>
-                        <input type="number" id="pessoas-dp" value="" min="0"
+                        <label for="pessoas-dpc" class="block text-sm font-medium text-gray-700">Pessoas
+                            encaminhadas a DPC</label>
+                        <input type="number" id="pessoas-dpc" value="" min="0"
                             class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="form-group">
@@ -417,8 +425,10 @@
                 const reportData = {
                     opm: opm,
                     viaturas: document.getElementById('viaturas').value,
-                    // Coleta do novo campo Efetivo
+                    // Coleta do campo Efetivo
                     efetivo: document.getElementById('efetivo').value,
+                    // Coleta do NOVO campo Ocorrências
+                    ocorrencias: formatValue(document.getElementById('ocorrencias-atendidas').value),
                     veiculosAbordados: formatValue(document.getElementById('veiculos-abordados').value),
                     pessoasAbordadas: formatValue(document.getElementById('pessoas-abordadas').value),
                     aits: formatValue(document.getElementById('aits').value),
@@ -427,7 +437,7 @@
                     veiculosFisc: formatValue(document.getElementById('veiculos-apreendidos-fisc').value),
                     veiculosRecuperados: formatValue(document.getElementById('veiculos-recuperados').value),
                     armas: formatValue(document.getElementById('armas-apreendidas').value),
-                    pessoasDp: formatValue(document.getElementById('pessoas-dp').value),
+                    pessoasDpc: formatValue(document.getElementById('pessoas-dpc').value),
                     menores: formatValue(document.getElementById('menores-apreendidos').value),
                     pessoasPresas: formatValue(document.getElementById('pessoas-presas').value),
                     mandados: formatValue(document.getElementById('mandados-prisao').value),
@@ -455,6 +465,7 @@ ${tituloFormatado}
 Viaturas Empregadas: ${reportData.viaturas}
 Efetivo empregado: ${reportData.efetivo}
 ---
+Ocorrências Atendidas: ${reportData.ocorrencias}
 Veículos abordados: ${reportData.veiculosAbordados}
 Pessoas abordadas: ${reportData.pessoasAbordadas}
 AITs: ${reportData.aits}
@@ -463,7 +474,7 @@ Veículos Apreendidos (crime): ${reportData.veiculosCrime}
 Veículos Apreendidos (fiscalização): ${reportData.veiculosFisc}
 Veículos Recuperados: ${reportData.veiculosRecuperados}
 Armas de fogo apreendidas: ${reportData.armas}
-Pessoas encaminhadas a DP: ${reportData.pessoasDp}
+Pessoas encaminhadas a DPC: ${reportData.pessoasDpc}
 Menores apreendidos: ${reportData.menores}
 Pessoas Presas flagrante/TCO: ${reportData.pessoasPresas}
 Mandados de Prisões cumpridos: ${reportData.mandados}
@@ -539,4 +550,3 @@ Observação: ${reportData.obs}
 </body>
 
 </html>
-
