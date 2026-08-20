@@ -1,462 +1,478 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Resumo de Serviço - PMMS</title>
-    <!-- Carrega o Tailwind CSS -->
+    <title>Resumo de Serviço - PMMS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="operacoes.js"></script>
     <style>
-        /* Estilo para a fonte Inter */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Fundo cinza bem claro para destacar o branco */
-        }
-
-        /* Adiciona um estilo para os inputs numéricos não terem setas */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        /* Remove setinhas dos inputs numéricos */
         input[type='number']::-webkit-inner-spin-button,
-        input[type='number']::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input[type='number'] {
-            -moz-appearance: textfield;
-        }
-
-        /* Cores personalizadas PMMS */
-        .bg-pm-marinho { background-color: #0f172a; } /* slate-900 */
-        .text-pm-marinho { color: #0f172a; }
-        .border-pm-marinho { border-color: #0f172a; }
-        .ring-pm-marinho { --tw-ring-color: #0f172a; }
+        input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type='number'] { -moz-appearance: textfield; }
         
-        .bg-pm-petroleo { background-color: #134e4a; } /* teal-900 */
+        /* Paleta PMMS */
+        .bg-pm-marinho { background-color: #0f172a; }
+        .text-pm-marinho { color: #0f172a; }
+        .bg-pm-petroleo { background-color: #134e4a; }
         .text-pm-petroleo { color: #134e4a; }
         .border-pm-petroleo { border-color: #134e4a; }
     </style>
-    <!-- Importa a fonte Inter do Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 </head>
-
 <body class="text-gray-900 p-2 sm:p-4 md:p-8">
 
-    <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
-
-        <!-- Cabeçalho Oficial PMMS -->
-        <div class="bg-pm-marinho text-white p-6 text-center border-b-4 border-pm-petroleo relative">
-            <!-- <img src="Brasão_PMMS.PNG" alt="Brasão PMMS" class="h-28 mx-auto mb-4 drop-shadow-lg object-contain" onerror="this.style.display='none'"> -->
-            <h2 class="text-sm font-bold tracking-widest text-gray-300 uppercase mb-1">Polícia Militar de Mato Grosso do Sul</h2>
-            <h1 id="titulo-relatorio" class="text-xl md:text-2xl font-extrabold text-white">
-                Carregando título...
-            </h1>
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
+        <!-- Cabeçalho Oficial -->
+        <div class="bg-pm-marinho text-white p-6 text-center border-b-4 border-pm-petroleo">
+            <img src="Brasão_PMMS.PNG" alt="Brasão PMMS" class="h-24 mx-auto mb-3 drop-shadow-lg object-contain" onerror="this.style.display='none'">
+            <h2 class="text-xs font-bold tracking-widest text-gray-300 uppercase mb-1">Polícia Militar de Mato Grosso do Sul - 14ª CIPM</h2>
+            <h1 id="titulo-relatorio" class="text-xl md:text-2xl font-extrabold text-white">Carregando título...</h1>
+            <p id="display-operacoes" class="mt-3 text-sm font-semibold text-yellow-400 bg-black bg-opacity-30 inline-block px-4 py-1 rounded-full"></p>
         </div>
 
-        <!-- Corpo do Formulário -->
         <div class="p-6 md:p-8">
-            <form id="report-form" class="space-y-8">
-
+            <form id="report-form" class="space-y-6">
+                
                 <!-- Seção 1: OPM, Viaturas e Efetivo -->
                 <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 shadow-sm">
                     <h3 class="text-sm font-bold text-pm-petroleo uppercase tracking-wider mb-4 border-b border-gray-300 pb-2">Informações da Guarnição</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-2">OPM</label>
-                            <div id="opm-radio-group" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-2 mt-1">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        
+                        <!-- OPM -->
+                        <div class="md:col-span-6">
+                            <label class="block text-sm font-bold text-pm-marinho mb-2">OPM (Obrigatório)</label>
+                            <div id="opm-radio-group" class="grid grid-cols-2 gap-2 mt-1">
                                 <div>
                                     <input type="radio" id="opm-sede" name="opm" value="Sede" class="sr-only peer" required>
-                                    <label for="opm-sede"
-                                        class="block w-full p-2 text-center text-sm font-medium border border-gray-300 rounded-md cursor-pointer peer-checked:bg-pm-marinho peer-checked:text-white peer-checked:border-pm-marinho hover:bg-gray-100 transition-colors">
-                                        Sede
-                                    </label>
+                                    <label for="opm-sede" class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Sede</label>
                                 </div>
                                 <div>
                                     <input type="radio" id="opm-iguatemi" name="opm" value="2° PEL Iguatemi" class="sr-only peer">
-                                    <label for="opm-iguatemi"
-                                        class="block w-full p-2 text-center text-sm font-medium border border-gray-300 rounded-md cursor-pointer peer-checked:bg-pm-marinho peer-checked:text-white peer-checked:border-pm-marinho hover:bg-gray-100 transition-colors">
-                                        Iguatemi
-                                    </label>
+                                    <label for="opm-iguatemi" class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Iguatemi</label>
                                 </div>
                                 <div>
                                     <input type="radio" id="opm-japora" name="opm" value="3° PEL Japorã" class="sr-only peer">
-                                    <label for="opm-japora"
-                                        class="block w-full p-2 text-center text-sm font-medium border border-gray-300 rounded-md cursor-pointer peer-checked:bg-pm-marinho peer-checked:text-white peer-checked:border-pm-marinho hover:bg-gray-100 transition-colors">
-                                        Japorã
-                                    </label>
+                                    <label for="opm-japora" class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Japorã</label>
                                 </div>
                                 <div>
-                                    <input type="radio" id="opm-eldorado" name="opm" value="4°PEL Eldorado" class="sr-only peer">
-                                    <label for="opm-eldorado"
-                                        class="block w-full p-2 text-center text-sm font-medium border border-gray-300 rounded-md cursor-pointer peer-checked:bg-pm-marinho peer-checked:text-white peer-checked:border-pm-marinho hover:bg-gray-100 transition-colors">
-                                        Eldorado
-                                    </label>
+                                    <input type="radio" id="opm-eldorado" name="opm" value="4° PEL Eldorado" class="sr-only peer">
+                                    <label for="opm-eldorado" class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Eldorado</label>
                                 </div>
+
+<div>
+                                    <input type="radio" id="opm-morumbi" name="opm" value="Morumbi" class="sr-only peer">
+                                    <label for="opm-morumbi" class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Morumbi</label>
+                                </div>
+<div>
+                                    <div>
+    <input type="radio" id="opm-custom-radio" name="opm" value="custom" class="sr-only peer">
+    <input type="text" id="opm-custom-input" placeholder="Cadastrar Equipe..." 
+        onfocus="document.getElementById('opm-custom-radio').checked = true;"
+        class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0f172a] peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:placeholder-gray-300 placeholder-gray-600 transition-colors">
+</div>
+                                </div>
+
+
+
                             </div>
                         </div>
-                        <div>
-                            <label for="viaturas" class="block text-sm font-bold text-gray-800 mb-2">Viaturas Empregadas</label>
-                            <select id="viaturas" name="viaturas" required
-                                class="w-full p-2.5 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                                <option value="1" selected>1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                            </select>
+
+                        <!-- Viaturas (Incremento) -->
+                        <div class="md:col-span-3 flex flex-col items-center">
+                            <label class="block text-sm font-bold text-pm-marinho mb-2">Viaturas</label>
+                            <div class="inline-flex w-40 h-14 bg-white border border-gray-300 rounded-md shadow-sm overflow-hidden">
+                                <button type="button" onclick="ajustarValor('viaturas', -1)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-pm-marinho font-bold text-2xl border-r border-gray-300 transition-colors focus:outline-none">-</button>
+                                <input type="number" id="viaturas" name="viaturas" value="1" min="0" class="w-16 text-center font-black text-2xl text-pm-marinho bg-white focus:outline-none" readonly>
+                                <button type="button" onclick="ajustarValor('viaturas', 1)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-pm-marinho font-bold text-2xl border-l border-gray-300 transition-colors focus:outline-none">+</button>
+                            </div>
                         </div>
-                        <div>
-                            <label for="efetivo" class="block text-sm font-bold text-gray-800 mb-2">Efetivo empregado</label>
-                            <select id="efetivo" name="efetivo" required
-                                class="w-full p-2.5 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                                <option value="1" selected>1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                                <option value="9">9</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
-                                <option value="13">13</option>
-                                <option value="14">14</option>
-                                <option value="15">15</option>
-                                <option value="16">16</option>
-                                <option value="17">17</option>
-                                <option value="18">18</option>
-                                <option value="19">19</option>
-                                <option value="20">20</option>
-                            </select>
+
+                        <!-- Efetivo (Incremento) -->
+                        <div class="md:col-span-3 flex flex-col items-center">
+                            <label class="block text-sm font-bold text-pm-marinho mb-2">Efetivo</label>
+                            <div class="inline-flex w-40 h-14 bg-white border border-gray-300 rounded-md shadow-sm overflow-hidden">
+                                <button type="button" onclick="ajustarValor('efetivo', -1)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-pm-marinho font-bold text-2xl border-r border-gray-300 transition-colors focus:outline-none">-</button>
+                                <input type="number" id="efetivo" name="efetivo" value="3" min="0" class="w-16 text-center font-black text-2xl text-pm-marinho bg-white focus:outline-none" readonly>
+                                <button type="button" onclick="ajustarValor('efetivo', 1)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-pm-marinho font-bold text-2xl border-l border-gray-300 transition-colors focus:outline-none">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Seção 2: Entradas Numéricas -->
-                <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-                    <h3 class="text-sm font-bold text-pm-petroleo uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">Estatísticas Operacionais</h3>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+                <!-- Estatísticas de Produtividade (Campos Vazios por Padrão) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Bloco 1 -->
+                    <div class="col-span-2 md:col-span-4 bg-pm-petroleo text-white px-3 py-1 rounded text-sm font-bold uppercase mt-2">Atendimentos & Abordagens</div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Ocorrências Atendidas</label><input type="number" id="ocorrencias" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Veículos abordados</label><input type="number" id="veiculos-abordados" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Pessoas abordadas</label><input type="number" id="pessoas-abordadas" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    
+                    <!-- Bloco 2 -->
+                    <div class="col-span-2 md:col-span-4 bg-pm-petroleo text-white px-3 py-1 rounded text-sm font-bold uppercase mt-2">Fiscalização & Prevenção</div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">MPU fiscalizadas</label><input type="number" id="mpu" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Rondas escolares</label><input type="number" id="rondas" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Policiamento indígena</label><input type="number" id="indigena" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Palestras/cursos</label><input type="number" id="palestras" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    
+                    <!-- Bloco 3 -->
+                    <div class="col-span-2 md:col-span-4 bg-pm-petroleo text-white px-3 py-1 rounded text-sm font-bold uppercase mt-2">Trânsito</div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Sinistros atendidos</label><input type="number" id="sinistros" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Blitz preventiva</label><input type="number" id="blitz" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Bloqueio/barreira</label><input type="number" id="bloqueio" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">AITs</label><input type="number" id="aits" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+
+                    <!-- Bloco 4 -->
+                    <div class="col-span-2 md:col-span-4 bg-pm-petroleo text-white px-3 py-1 rounded text-sm font-bold uppercase mt-2">Detenções & Encaminhamentos</div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Encaminhados à DP</label><input type="number" id="p-encam" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Menores apreendidos</label><input type="number" id="p-menor" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Presos Flag/TCO</label><input type="number" id="p-preso" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                    <div class="form-group"><label class="text-xs font-bold text-gray-700">Mandados cumpridos</label><input type="number" id="p-mandado" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm font-medium"></div>
+                </div>
+
+                <!-- Detalhamento de Veículos -->
+                <div class="border-t-2 border-slate-200 pt-6">
+                    <div class="border border-gray-300 rounded-lg p-6 bg-gray-50 shadow-inner">
+                        <h4 class="font-bold text-pm-marinho mb-6 uppercase text-sm border-b pb-2">Apreensões/Remoções (Detalhamento de Veículos)</h4>
                         
-                        <!-- Ocorrências Atendidas -->
-                        <div class="form-group col-span-2 sm:col-span-3 md:col-span-2 bg-slate-50 p-3 rounded border border-gray-100">
-                            <label for="ocorrencias-atendidas" class="block text-sm font-bold text-gray-800">Ocorrências Atendidas</label>
-                            <input type="number" id="ocorrencias-atendidas" value="" min="0" placeholder="Quantidade de ocorrências solicitadas encaminhadas"
-                                class="mt-2 w-full p-2 border border-gray-300 rounded-md shadow-inner focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            
+                            <!-- Coluna 1: Ações (Esquerda) -->
+                            <div class="lg:col-span-3 flex flex-col gap-3">
+                                <div>
+                                    <input type="radio" id="acao-recuperado" name="acao-veic" value="Recuperado" class="sr-only peer" checked>
+                                    <label for="acao-recuperado" class="block w-full p-3 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Recuperado</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="acao-envolvimento" name="acao-veic" value="Envolvimento" class="sr-only peer">
+                                    <label for="acao-envolvimento" class="block w-full p-3 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Envolvimento</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="acao-removido" name="acao-veic" value="Removido" class="sr-only peer">
+                                    <label for="acao-removido" class="block w-full p-3 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Removido</label>
+                                </div>
+                            </div>
 
-                        <!-- Lista de campos numéricos atualizada -->
-                        <div class="form-group">
-                            <label for="veiculos-abordados" class="block text-xs font-semibold text-gray-700">Veículos abordados</label>
-                            <input type="number" id="veiculos-abordados" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="pessoas-abordadas" class="block text-xs font-semibold text-gray-700">Pessoas abordadas</label>
-                            <input type="number" id="pessoas-abordadas" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="aits" class="block text-xs font-semibold text-gray-700">Autos de Infração de Trânsito (AITs)</label>
-                            <input type="number" id="aits" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="sinistros" class="block text-xs font-semibold text-gray-700">Sinistros Atendidos</label>
-                            <input type="number" id="sinistros" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="veiculos-apreendidos-crime" class="block text-xs font-semibold text-gray-700">Veículos Apreendidos (crime)</label>
-                            <input type="number" id="veiculos-apreendidos-crime" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="veiculos-apreendidos-fisc" class="block text-xs font-semibold text-gray-700">Veículos Apreendidos (fisc.)</label>
-                            <input type="number" id="veiculos-apreendidos-fisc" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="veiculos-recuperados" class="block text-xs font-semibold text-gray-700">Veículos Recuperados</label>
-                            <input type="number" id="veiculos-recuperados" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="armas-apreendidas" class="block text-xs font-semibold text-gray-700">Armas de fogo apreendidas</label>
-                            <input type="number" id="armas-apreendidas" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="pessoas-dpc" class="block text-xs font-semibold text-gray-700">Pessoas encaminhadas a Delegacia</label>
-                            <input type="number" id="pessoas-dpc" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="menores-apreendidos" class="block text-xs font-semibold text-gray-700">Menores apreendidos</label>
-                            <input type="number" id="menores-apreendidos" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="pessoas-presas" class="block text-xs font-semibold text-gray-700">Pessoas Presas flagrante/TCO</label>
-                            <input type="number" id="pessoas-presas" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="mandados-prisao" class="block text-xs font-semibold text-gray-700">Mandados de Prisão cumpridos</label>
-                            <input type="number" id="mandados-prisao" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="palestras-proerd" class="block text-xs font-semibold text-gray-700">BLITZ</label>
-                            <input type="number" id="palestras-proerd" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="mpu-fiscalizadas" class="block text-xs font-semibold text-gray-700">MPU fiscalizadas</label>
-                            <input type="number" id="mpu-fiscalizadas" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="palestras-transito" class="block text-xs font-semibold text-gray-700">Rondas escolares</label>
-                            <input type="number" id="palestras-transito" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
-                        </div>
-                        <div class="form-group">
-                            <label for="palestras-promuse-escolas" class="block text-xs font-semibold text-gray-700">Palestras e Cursos Ministrados</label>
-                            <input type="number" id="palestras-promuse-escolas" value="" min="0" class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo font-medium">
+                            <!-- Coluna 2: Tipo de Veículo e Botões (Centro) -->
+                            <div class="lg:col-span-3 flex flex-col gap-3">
+                                <div>
+                                    <input type="radio" id="tipo-carro" name="tipo-veic" value="Carro" class="sr-only peer" checked>
+                                    <label for="tipo-carro" class="block w-full p-3 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Carro</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="tipo-moto" name="tipo-veic" value="Moto / Ciclomotor" class="sr-only peer">
+                                    <label for="tipo-moto" class="block w-full p-3 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Moto / Ciclomotor</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="tipo-autopropelido" name="tipo-veic" value="Autopropelido" class="sr-only peer">
+                                    <label for="tipo-autopropelido" class="block w-full p-3 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Autopropelido</label>
+                                </div>
+                                
+                                <div class="mt-2 space-y-2">
+                                    <button type="button" onclick="addVeiculo()" class="w-full bg-blue-600 text-white p-3 rounded-md font-bold shadow hover:bg-blue-700 transition-colors text-base tracking-wide">Adicionar +</button>
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Coluna 3: Contadores (Direita) -->
+                            <div class="lg:col-span-6 flex flex-col gap-4 lg:pl-6 lg:border-l border-gray-300">
+                                <div>
+                                    <label class="text-xs font-bold text-gray-700 leading-tight block mb-1">Recuperados (roubo/furto, Aprop. Indébita, Alteração de sinal...)</label>
+                                    <input type="number" id="veic-recup" value="0" class="w-full border border-gray-300 rounded p-2 text-center bg-gray-200 font-bold text-base" readonly>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-700 leading-tight block mb-1">Crime (Envolvimento)</label>
+                                    <input type="number" id="veic-crime" value="0" class="w-full border border-gray-300 rounded p-2 text-center bg-gray-200 font-bold text-base" readonly>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-700 leading-tight block mb-1">Removidos (DETRAN)</label>
+                                    <input type="number" id="veic-remov" value="0" class="w-full border border-gray-300 rounded p-2 text-center bg-gray-200 font-bold text-base" readonly>
+                                </div>
+				<button type="button" onclick="limparDetalhesVeiculos()" class="w-full bg-red-500 text-white p-2 rounded-md font-bold shadow hover:bg-red-600 transition-colors text-xs uppercase tracking-wide">Limpar Detalhamento</button>
+                            </div>
+				
                         </div>
                         
-                        <!-- O Campo de Fábricas foi Ocultado Visualmente conforme solicitado -->
+                        <ul id="lista-veiculos" class="text-sm mt-5 list-disc pl-5 text-gray-700 font-medium space-y-1"></ul>
                     </div>
                 </div>
 
-                <!-- Seção 3: Textos Livres -->
-                <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
-                    <h3 class="text-sm font-bold text-pm-petroleo uppercase tracking-wider mb-4 border-b border-gray-300 pb-2">Descrições Detalhadas</h3>
-
-                    <div>
-                        <label for="drogas-apreendidas" class="block text-sm font-bold text-gray-800">Drogas apreendidas</label>
-                        <textarea id="drogas-apreendidas" rows="2"
-                            placeholder="Ex: 100kg de maconha, 2kg de cocaína..."
-                            class="mt-1 w-full p-2 bg-white border border-gray-300 rounded-md shadow-inner focus:ring-pm-petroleo focus:border-pm-petroleo font-medium"></textarea>
+                <!-- Textos Livres -->
+                <div class="grid grid-cols-1 gap-4 pt-4 border-t-2 border-slate-200">
+                    <div class="form-group"><label class="text-sm font-bold text-gray-700">Armas de fogo apreendidas</label><input type="number" id="armas" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm"></div>
+                    <div class="form-group"><label class="text-sm font-bold text-gray-700">Drogas apreendidas</label><textarea id="drogas" rows="2" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm"></textarea></div>
+                    <div class="form-group"><label class="text-sm font-bold text-gray-700">Outras apreensões</label><textarea id="outras" rows="2" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm"></textarea></div>
+                    
+                    <div class="grid grid-cols-4 gap-4 bg-slate-50 p-4 rounded border border-gray-200">
+                        <div class="col-span-4 sm:col-span-1"><label class="text-sm font-bold text-gray-700">Qtd RO's</label><input type="number" id="qtd-ros" value="" min="0" class="w-full p-2 border border-gray-300 rounded mt-1 text-center font-bold text-lg shadow-sm"></div>
+                        <div class="col-span-4 sm:col-span-3"><label class="text-sm font-bold text-gray-700">Descrição/Números dos RO's</label><textarea id="desc-ros" rows="2" class="w-full p-2 border border-gray-300 rounded mt-1 shadow-sm"></textarea></div>
                     </div>
-
-                    <div>
-                        <label for="outras-apreensoes" class="block text-sm font-bold text-gray-800">Outras apreensões</label>
-                        <textarea id="outras-apreensoes" rows="2"
-                            placeholder="Ex: Contrabando, descaminho, etc..."
-                            class="mt-1 w-full p-2 bg-white border border-gray-300 rounded-md shadow-inner focus:ring-pm-petroleo focus:border-pm-petroleo font-medium"></textarea>
+                    
+                    <div class="form-group">
+                        <label class="text-sm font-bold text-gray-700">Observação Geral</label>
+                        <p class="text-xs text-gray-500 mb-1">O detalhamento de veículos será inserido de forma automática e organizada após o seu texto.</p>
+                        <textarea id="obs" rows="3" class="w-full p-2 border border-gray-300 rounded shadow-sm focus:ring-pm-petroleo focus:border-pm-petroleo"></textarea>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded border border-gray-100">
-                        <div class="md:col-span-1">
-                            <label for="quantidade-ros" class="block text-sm font-bold text-gray-800">Quantidade de RO's</label>
-                            <input type="number" id="quantidade-ros" value="" min="0"
-                                class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-inner focus:ring-pm-petroleo focus:border-pm-petroleo font-medium text-center text-lg">
-                        </div>
-                        <div class="md:col-span-3">
-                            <label for="descricao-ros" class="block text-sm font-bold text-gray-800">Descrição/Números dos RO's</label>
-                            <textarea id="descricao-ros" rows="2" placeholder="Ex: RO 123 (Tráfico), RO 124 (Vistoria)..."
-                                class="mt-1 w-full p-2 border border-gray-300 rounded-md shadow-inner focus:ring-pm-petroleo focus:border-pm-petroleo font-medium"></textarea>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="observacao" class="block text-sm font-bold text-gray-800">Observações</label>
-                        <textarea id="observacao" rows="2" placeholder="Alguma informação adicional..."
-                            class="mt-1 w-full p-2 bg-white border border-gray-300 rounded-md shadow-inner focus:ring-pm-petroleo focus:border-pm-petroleo font-medium"></textarea>
-                    </div>
-
                 </div>
 
-                <!-- Seção 4: Botão de Ação -->
-                <div class="mt-10 text-center space-y-4">
-                    <div class="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
-                        <!-- Botão WhatsApp -->
-                        <button type="button" id="whatsapp-btn"
-                            class="w-full sm:w-auto px-8 py-4 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-200 order-1 flex items-center justify-center gap-2 transform hover:-translate-y-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
-                                <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.626-2.957 6.584-6.591 6.584zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
-                            </svg>
-                            Enviar Relatório
-                        </button>
-                        <button type="button" id="visualizar-btn"
-                            class="w-full sm:w-auto px-6 py-4 bg-pm-petroleo text-white font-bold rounded-lg shadow-md hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-300 transition-all duration-200 order-2">
-                            Visualizar
-                        </button>
-                        <button type="button" id="limpar-btn"
-                            class="w-full sm:w-auto px-6 py-4 bg-red-600 text-white font-bold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 transition-all duration-200 order-3">
-                            Limpar
-                        </button>
-                    </div>
-                    <p id="copy-feedback" class="text-green-600 font-semibold mt-2 h-4"></p>
-                    <p id="db-feedback" class="text-pm-marinho text-sm mt-1 font-bold"></p>
+                <!-- Botões de Ação -->
+                <div class="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+                    <button type="button" id="whatsapp-btn" class="px-8 py-4 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 focus:outline-none transition-all duration-200 order-1 flex items-center justify-center gap-2 transform hover:-translate-y-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.626-2.957 6.584-6.591 6.584zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
+                        GERAR E ENVIAR
+                    </button>
+                    <button type="button" id="visualizar-btn" class="w-full sm:w-auto px-6 py-4 bg-pm-petroleo text-white font-bold rounded-lg shadow-md hover:bg-teal-800 focus:outline-none transition-all duration-200 order-2">
+                        VISUALIZAR
+                    </button>
+                    <button type="button" id="limpar-btn" class="w-full sm:w-auto px-6 py-4 bg-red-600 text-white font-bold rounded-lg shadow-md hover:bg-red-700 focus:outline-none transition-all duration-200 order-3">
+                        LIMPAR TUDO
+                    </button>
                 </div>
+                <p id="db-feedback" class="text-center font-bold text-pm-marinho text-sm h-4 mt-2"></p>
             </form>
 
-            <!-- Seção 5: Visualização (oculta por padrão) -->
+            <!-- Área de Visualização -->
             <div id="preview-container" class="mt-8 p-4 border-2 border-pm-petroleo rounded-lg bg-gray-50 hidden shadow-inner">
                 <h3 class="text-xl font-extrabold text-pm-marinho mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-text-fill" viewBox="0 0 16 16">
-                      <path d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM5 4h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zM5 8h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1zm0 2h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1z"/>
-                    </svg>
-                    Visualização do Relatório
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-text-fill" viewBox="0 0 16 16"><path d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM5 4h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zM5 8h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1zm0 2h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1z"/></svg>
+                    Pré-visualização do Relatório
                 </h3>
                 <pre id="preview-content" class="whitespace-pre-wrap w-full text-sm font-mono bg-white p-5 rounded border border-gray-300 overflow-x-auto text-gray-800"></pre>
             </div>
         </div>
-
     </div>
 
-    <!-- Script Principal -->
     <script>
-        // =========================================================================
-        // CONFIGURAÇÃO DA PLANILHA GOOGLE
-        // =========================================================================
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDLDqgq7I1O9piwzosnMTnCYdm46jhG-uHu1tXMZ8_qMLfYmyjrILiUBz5lb_2QKo/exec";
+        // Carrega operação vigente do arquivo externo
+        document.getElementById('display-operacoes').textContent = typeof OPERACOES_VIGENTES !== 'undefined' ? `Operações vigentes: ${OPERACOES_VIGENTES}` : "Operações vigentes: 0";
 
-        // Lógica de salvamento em planilha
-        async function salvarNaPlanilha(dados) {
-            const feedbackDb = document.getElementById('db-feedback');
+        // Funções para botões de incremento/decremento
+        function ajustarValor(id, delta) {
+            const input = document.getElementById(id);
+            let val = parseInt(input.value);
+            if (isNaN(val)) val = 0;
+            val += delta;
+            if (val < 0) val = 0;
+            input.value = val;
+        }
+
+        // Variável como objeto para agrupar as contagens dos veículos
+        let detalhesVeiculos = {};
+
+        function addVeiculo() {
+            // Pega os valores dos rádios selecionados
+            const acaoRadio = document.querySelector('input[name="acao-veic"]:checked');
+            const tipoRadio = document.querySelector('input[name="tipo-veic"]:checked');
             
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("COLE_SUA_URL")) {
-                feedbackDb.textContent = "⚠️ URL da Planilha não configurada.";
-                return;
+            if(!acaoRadio || !tipoRadio) return; 
+            
+            const acao = acaoRadio.value;
+            const tipo = tipoRadio.value;
+            const chave = `${tipo} (${acao})`; // Ex: Carro (Recuperado)
+            
+            // Soma na contagem detalhada
+            if (detalhesVeiculos[chave]) {
+                detalhesVeiculos[chave]++;
+            } else {
+                detalhesVeiculos[chave] = 1;
             }
+            
+            // Atualiza contadores visuais gerais
+            if(acao === "Recuperado") document.getElementById('veic-recup').value++;
+            if(acao === "Envolvimento") document.getElementById('veic-crime').value++;
+            if(acao === "Removido") document.getElementById('veic-remov').value++;
+            
+            atualizarListaVeiculos();
+        }
 
-            feedbackDb.textContent = "Enviando para sistema...";
+        // Limpa apenas o bloco de veículos
+        function limparDetalhesVeiculos() {
+            detalhesVeiculos = {};
+            document.getElementById('veic-recup').value = "0";
+            document.getElementById('veic-crime').value = "0";
+            document.getElementById('veic-remov').value = "0";
+            atualizarListaVeiculos();
+        }
 
-            try {
-                // Adiciona data legível
-                const dadosParaEnviar = {
-                    ...dados,
-                    dataLegivel: new Date().toLocaleString('pt-BR')
-                };
-
-                // Envia como POST request para o script
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dadosParaEnviar)
-                });
-
-                feedbackDb.textContent = "✅ Relatório processado com sucesso!";
-                setTimeout(() => feedbackDb.textContent = "", 3000);
-
-            } catch (error) {
-                console.error('Erro ao salvar na planilha:', error);
-                feedbackDb.textContent = "❌ Erro na comunicação de rede.";
+        function atualizarListaVeiculos() {
+            const lista = document.getElementById('lista-veiculos');
+            lista.innerHTML = '';
+            for (let chave in detalhesVeiculos) {
+                let qtd = detalhesVeiculos[chave];
+                let qtdFormatada = qtd < 10 ? `0${qtd}` : qtd;
+                lista.innerHTML += `<li>- ${qtdFormatada} ${chave}</li>`;
             }
         }
 
-        // --- Código da Lógica do Formulário ---
-        
-        let tituloFormatado = "";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDLDqgq7I1O9piwzosnMTnCYdm46jhG-uHu1tXMZ8_qMLfYmyjrILiUBz5lb_2QKo/exec";
 
-        function formatValue(value) { return value || '0'; }
-        function formatText(text) { return text.trim() || 'Nada a constar'; }
+        let tituloFormatado = "";
+        
+        // Formatar Valores (se vazio retorna 0 pro relatório)
+        function formatVal(id) { 
+            const val = document.getElementById(id).value;
+            return (val === undefined || val === null || val.trim() === "") ? '0' : val;
+        }
+        
+        function formatTxt(id) { return document.getElementById(id).value.trim() || 'Nada a constar'; }
+
+        // Preenche visualmente os inputs vazios com "0"
+        function preencherCamposVazios() {
+            document.querySelectorAll('input[type="number"]:not([readonly])').forEach(input => {
+                if (input.id !== 'viaturas' && input.id !== 'efetivo' && input.value.trim() === '') {
+                    input.value = '0';
+                }
+            });
+        }
 
         function setDynamicTitle() {
-            const hoje = new Date();
-            const ontem = new Date(hoje);
-            ontem.setDate(hoje.getDate() - 1);
-
-            const diaAnterior = String(ontem.getDate()).padStart(2, '0');
-            const diaAtual = String(hoje.getDate()).padStart(2, '0');
-            const mesFmt = String(hoje.getMonth() + 1).padStart(2, '0');
-            const ano = hoje.getFullYear();
-
-            tituloFormatado = `Resumo do serviço do dia ${diaAnterior} para o dia ${diaAtual}/${mesFmt}/${ano}`;
+            const h = new Date();
+            const o = new Date(h); o.setDate(h.getDate() - 1);
+            tituloFormatado = `Resumo do serviço do dia ${String(o.getDate()).padStart(2, '0')} para o dia ${String(h.getDate()).padStart(2, '0')}/${String(h.getMonth() + 1).padStart(2, '0')}/${h.getFullYear()}`;
             document.getElementById('titulo-relatorio').textContent = tituloFormatado;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             setDynamicTitle();
 
-            const feedbackElement = document.getElementById('copy-feedback');
-            const form = document.getElementById('report-form');
-            const limparBtn = document.getElementById('limpar-btn');
-            const visualizarBtn = document.getElementById('visualizar-btn');
+            const feedbackElement = document.getElementById('db-feedback');
             const previewContainer = document.getElementById('preview-container');
             const previewContent = document.getElementById('preview-content');
-            const whatsappBtn = document.getElementById('whatsapp-btn');
+
+            // Limpar formulário inteiro
+            document.getElementById('limpar-btn').addEventListener('click', () => {
+                document.getElementById('report-form').reset();
+                limparDetalhesVeiculos();
+                previewContainer.classList.add('hidden');
+                document.getElementById('viaturas').value = '1';
+                document.getElementById('efetivo').value = '3';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
 
             function generateReportString() {
+                // Preenche campos vazios antes de capturar dados
+                preencherCamposVazios();
+                
                 const opmRadio = document.querySelector('input[name="opm"]:checked');
-                const opm = opmRadio ? opmRadio.value : "";
+let opm = "";
+
+if (opmRadio) {
+    if (opmRadio.value === "custom") {
+        // Se a opção personalizada foi marcada, pega o texto digitado
+        opm = document.getElementById('opm-custom-input').value.trim();
+        // Se o usuário clicou mas não digitou nada, coloca um aviso
+        if (opm === "") opm = "Equipe Não Informada"; 
+    } else {
+        opm = opmRadio.value;
+    }
+}
                 
                 if (!opm) {
                     feedbackElement.textContent = 'Atenção: Selecione a OPM antes de continuar.';
-                    feedbackElement.classList.remove('text-green-600');
+                    feedbackElement.classList.remove('text-pm-marinho');
                     feedbackElement.classList.add('text-red-600');
                     setTimeout(() => {
                          feedbackElement.textContent = '';
                          feedbackElement.classList.remove('text-red-600');
-                         feedbackElement.classList.add('text-green-600');
+                         feedbackElement.classList.add('text-pm-marinho');
                     }, 3000);
                     return null;
                 }
 
-                // Coleta de dados (Estrutura interna mantida intocada para a Planilha)
-                const rawData = {
+                // Compila observações + detalhamentos agregados
+                let obsFinal = formatTxt('obs');
+                if (obsFinal === 'Nada a constar') obsFinal = "";
+                
+                let chavesVeiculos = Object.keys(detalhesVeiculos);
+                if (chavesVeiculos.length > 0) {
+                    if (obsFinal !== "") obsFinal += "\n\n";
+                    
+                    let arrayFormatado = chavesVeiculos.map(chave => {
+                        let qtd = detalhesVeiculos[chave];
+                        let qtdFormatada = qtd < 10 ? `0${qtd}` : qtd;
+                        return `- ${qtdFormatada} ${chave}`;
+                    });
+                    
+                    obsFinal += `Detalhamento de Veículos:\n` + arrayFormatado.join("\n");
+                }
+                
+                if (obsFinal.trim() === "") obsFinal = "Nada a constar";
+
+                const data = {
                     opm: opm,
-                    viaturas: document.getElementById('viaturas').value,
-                    efetivo: document.getElementById('efetivo').value,
-                    ocorrencias: formatValue(document.getElementById('ocorrencias-atendidas').value),
-                    veiculosAbordados: formatValue(document.getElementById('veiculos-abordados').value),
-                    pessoasAbordadas: formatValue(document.getElementById('pessoas-abordadas').value),
-                    aits: formatValue(document.getElementById('aits').value),
-                    sinistros: formatValue(document.getElementById('sinistros').value),
-                    veiculosCrime: formatValue(document.getElementById('veiculos-apreendidos-crime').value),
-                    veiculosFisc: formatValue(document.getElementById('veiculos-apreendidos-fisc').value),
-                    veiculosRecuperados: formatValue(document.getElementById('veiculos-recuperados').value),
-                    armas: formatValue(document.getElementById('armas-apreendidas').value),
-                    pessoasDpc: formatValue(document.getElementById('pessoas-dpc').value),
-                    menores: formatValue(document.getElementById('menores-apreendidos').value),
-                    pessoasPresas: formatValue(document.getElementById('pessoas-presas').value),
-                    mandados: formatValue(document.getElementById('mandados-prisao').value),
-                    
-                    // As chaves internas são mantidas para não quebrar o array do Apps Script, apenas as IDs e labels mudaram
-                    proerd: formatValue(document.getElementById('palestras-proerd').value), // Agora é BLITZ
-                    mpu: formatValue(document.getElementById('mpu-fiscalizadas').value),
-                    palestrasTransito: formatValue(document.getElementById('palestras-transito').value), // Agora é Rondas Escolares
-                    palestrasPromuseEscolas: formatValue(document.getElementById('palestras-promuse-escolas').value), // Agora é Palestras/Cursos
-                    palestrasPromuseFabricas: "0", // Ocultado na interface, fixado em 0 para não quebrar a ordem da planilha
-                    
-                    drogas: formatText(document.getElementById('drogas-apreendidas').value),
-                    outrasApreensoes: formatText(document.getElementById('outras-apreensoes').value),
-                    qtdRos: formatValue(document.getElementById('quantidade-ros').value),
-                    descRos: formatText(document.getElementById('descricao-ros').value),
-                    obs: formatText(document.getElementById('observacao').value)
+                    viaturas: formatVal('viaturas'),
+                    efetivo: formatVal('efetivo'),
+                    ocorrencias: formatVal('ocorrencias'),
+                    veiculosAbordados: formatVal('veiculos-abordados'),
+                    pessoasAbordadas: formatVal('pessoas-abordadas'),
+                    mpu: formatVal('mpu'),
+                    rondas: formatVal('rondas'),
+                    indigena: formatVal('indigena'),
+                    palestras: formatVal('palestras'),
+                    sinistros: formatVal('sinistros'),
+                    veicRemov: formatVal('veic-remov'),
+                    blitz: formatVal('blitz'),
+                    bloqueio: formatVal('bloqueio'),
+                    aits: formatVal('aits'),
+                    veicRecup: formatVal('veic-recup'),
+                    veicCrime: formatVal('veic-crime'),
+                    armas: formatVal('armas'),
+                    pEncam: formatVal('p-encam'),
+                    pMenor: formatVal('p-menor'),
+                    pPreso: formatVal('p-preso'),
+                    pMandado: formatVal('p-mandado'),
+                    drogas: formatTxt('drogas'),
+                    outras: formatTxt('outras'),
+                    qtdRos: formatVal('qtd-ros'),
+                    descRos: formatTxt('desc-ros'),
+                    obs: obsFinal.trim(),
+                    opVigentes: typeof OPERACOES_VIGENTES !== 'undefined' ? OPERACOES_VIGENTES : "0"
                 };
 
-                const newHeader = `*🚔🚨 14ª CIPM - ${rawData.opm} 🚨🚔*`;
-
-                // Layout de Texto com as nomenclaturas atualizadas e exclusão do campo oculto
-                const reportString = `
-${newHeader}
+                const reportString = `*🚔🚨 14ª CIPM - ${data.opm} 🚨🚔*
 ${tituloFormatado}
-Viaturas Empregadas: ${rawData.viaturas}
-Efetivo empregado: ${rawData.efetivo}
 ---
-Ocorrências Atendidas: ${rawData.ocorrencias}
-Veículos abordados: ${rawData.veiculosAbordados}
-Pessoas abordadas: ${rawData.pessoasAbordadas}
-AITs: ${rawData.aits}
-Sinistros de Trânsito Atendidos: ${rawData.sinistros}
-Veículos Apreendidos (crime): ${rawData.veiculosCrime}
-Veículos Apreendidos (fiscalização): ${rawData.veiculosFisc}
-Veículos Recuperados: ${rawData.veiculosRecuperados}
-Armas de fogo apreendidas: ${rawData.armas}
-Pessoas encaminhadas a DPC: ${rawData.pessoasDpc}
-Menores apreendidos: ${rawData.menores}
-Pessoas Presas flagrante/TCO: ${rawData.pessoasPresas}
-Mandados de Prisões cumpridos: ${rawData.mandados}
-BLITZ: ${rawData.proerd}
-MPU fiscalizadas: ${rawData.mpu}
-Rondas escolares: ${rawData.palestrasTransito}
-Palestras e Cursos Ministrados: ${rawData.palestrasPromuseEscolas}
+Operações vigentes: ${data.opVigentes}
 ---
-Drogas apreendidas: ${rawData.drogas}
-Outras apreensões: ${rawData.outrasApreensoes}
-Quantidade de RO's: ${rawData.qtdRos}
-Descrição/Numeros dos RO's: ${rawData.descRos}
-Observação: ${rawData.obs}
-`.trim();
+Viaturas empregadas: ${data.viaturas}
+Efetivo empregado: ${data.efetivo}
+---
+Ocorrências Atendidas: ${data.ocorrencias}
+Veículos abordados: ${data.veiculosAbordados}
+Pessoas abordadas: ${data.pessoasAbordadas}
+---
+MPU fiscalizadas: ${data.mpu}
+Rondas escolares: ${data.rondas}
+Policiamento indígena: ${data.indigena}
+Palestras e cursos ministrados: ${data.palestras}
+---
+Sinistros de trânsito atendidos: ${data.sinistros}
+Veículos removidos (trânsito): ${data.veicRemov}
+Blitz preventiva e/ou trânsito: ${data.blitz}
+Bloqueio/barreira policial: ${data.bloqueio}
+AITs: ${data.aits}
+---
+Veículos recuperados: ${data.veicRecup}
+Veículos apreendidos (crime): ${data.veicCrime}
+Armas de fogo apreendidas: ${data.armas}
+---
+Pessoas encaminhadas à delegacia: ${data.pEncam}
+Menores apreendidos: ${data.pMenor}
+Pessoas presas flagrante/TCO: ${data.pPreso}
+Mandados de prisões cumpridos: ${data.pMandado}
+---
+Drogas apreendidas: ${data.drogas}
+Outras apreensões: ${data.outras}
+Quantidade de RO's: ${data.qtdRos}
+Descrição/Numeros dos RO's: ${data.descRos}
+Observação: ${data.obs}`.trim();
 
-                return { text: reportString, data: rawData };
+                return { text: reportString, rawData: data };
             }
 
-            visualizarBtn.addEventListener('click', () => {
+            document.getElementById('visualizar-btn').addEventListener('click', () => {
                 const result = generateReportString();
                 if (result) {
                     previewContent.textContent = result.text;
@@ -465,38 +481,24 @@ Observação: ${rawData.obs}
                 }
             });
 
-            whatsappBtn.addEventListener('click', () => {
+            document.getElementById('whatsapp-btn').addEventListener('click', async () => {
                 const result = generateReportString();
-                if (result) {
-                    // 1. Download do Arquivo .txt (Desativado conforme pedido)
-                    // downloadTxtFile(result.text, result.data.opm);
-
-                    // 2. Salvar na Planilha Google
-                    salvarNaPlanilha(result.data);
-
-                    // 3. Abrir WhatsApp
-                    const encodedText = encodeURIComponent(result.text);
-                    window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
-                    
-                    previewContainer.classList.add('hidden');
-                    feedbackElement.textContent = 'Processando dados e abrindo WhatsApp...';
-                    setTimeout(() => {
-                         feedbackElement.textContent = '';
-                    }, 4000);
-                }
-            });
-
-            limparBtn.addEventListener('click', () => {
-                form.reset();
-                feedbackElement.textContent = '';
-                document.getElementById('db-feedback').textContent = '';
-                previewContainer.classList.add('hidden');
+                if (!result) return;
                 
-                // Rola para o topo suavemente
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                feedbackElement.textContent = "Processando...";
+                
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST', mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...result.rawData, dataLegivel: new Date().toLocaleString('pt-BR') })
+                    });
+                } catch (e) { console.error(e); }
+
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(result.text)}`, '_blank');
+                feedbackElement.textContent = "";
             });
         });
     </script>
-
 </body>
 </html>
