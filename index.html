@@ -8,12 +8,12 @@
     <script src="operacoes.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        /* Remove setinhas dos inputs numéricos */
+        /* Remove setinhas dos inputs numéricos para uma interface mais limpa */
         input[type='number']::-webkit-inner-spin-button,
         input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type='number'] { -moz-appearance: textfield; }
         
-        /* Paleta PMMS */
+        /* Paleta Institucional PMMS */
         .bg-pm-marinho { background-color: #0f172a; }
         .text-pm-marinho { color: #0f172a; }
         .bg-pm-petroleo { background-color: #134e4a; }
@@ -41,7 +41,7 @@
                     <h3 class="text-sm font-bold text-pm-petroleo uppercase tracking-wider mb-4 border-b border-gray-300 pb-2">Informações da Guarnição</h3>
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                         
-                        <!-- OPM -->
+                        <!-- Bloco OPM -->
                         <div class="md:col-span-6">
                             <label class="block text-sm font-bold text-pm-marinho mb-2">OPM (Obrigatório)</label>
                             <div id="opm-radio-group" class="grid grid-cols-2 gap-2 mt-1">
@@ -61,26 +61,21 @@
                                     <input type="radio" id="opm-eldorado" name="opm" value="4° PEL Eldorado" class="sr-only peer">
                                     <label for="opm-eldorado" class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Eldorado</label>
                                 </div>
-
-<div>
+                                <div>
                                     <input type="radio" id="opm-morumbi" name="opm" value="Morumbi" class="sr-only peer">
                                     <label for="opm-morumbi" class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md cursor-pointer peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] hover:bg-gray-200 transition-colors">Morumbi</label>
                                 </div>
-<div>
-                                    <div>
-    <input type="radio" id="opm-custom-radio" name="opm" value="custom" class="sr-only peer">
-    <input type="text" id="opm-custom-input" placeholder="Cadastrar Equipe..." 
-        onfocus="document.getElementById('opm-custom-radio').checked = true;"
-        class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0f172a] peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:placeholder-gray-300 placeholder-gray-600 transition-colors">
-</div>
+                                <!-- Input customizado para Equipe -->
+                                <div>
+                                    <input type="radio" id="opm-custom-radio" name="opm" value="custom" class="sr-only peer">
+                                    <input type="text" id="opm-custom-input" placeholder="Cadastrar Equipe..." 
+                                        onfocus="document.getElementById('opm-custom-radio').checked = true;"
+                                        class="block w-full p-2 text-center text-sm font-bold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0f172a] peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:placeholder-gray-300 placeholder-gray-600 transition-colors">
                                 </div>
-
-
-
                             </div>
                         </div>
 
-                        <!-- Viaturas (Incremento) -->
+                        <!-- Controle Incrementável: Viaturas -->
                         <div class="md:col-span-3 flex flex-col items-center">
                             <label class="block text-sm font-bold text-pm-marinho mb-2">Viaturas</label>
                             <div class="inline-flex w-40 h-14 bg-white border border-gray-300 rounded-md shadow-sm overflow-hidden">
@@ -90,7 +85,7 @@
                             </div>
                         </div>
 
-                        <!-- Efetivo (Incremento) -->
+                        <!-- Controle Incrementável: Efetivo -->
                         <div class="md:col-span-3 flex flex-col items-center">
                             <label class="block text-sm font-bold text-pm-marinho mb-2">Efetivo</label>
                             <div class="inline-flex w-40 h-14 bg-white border border-gray-300 rounded-md shadow-sm overflow-hidden">
@@ -190,7 +185,7 @@
                                     <label class="text-xs font-bold text-gray-700 leading-tight block mb-1">Removidos (DETRAN)</label>
                                     <input type="number" id="veic-remov" value="0" class="w-full border border-gray-300 rounded p-2 text-center bg-gray-200 font-bold text-base" readonly>
                                 </div>
-				<button type="button" onclick="limparDetalhesVeiculos()" class="w-full bg-red-500 text-white p-2 rounded-md font-bold shadow hover:bg-red-600 transition-colors text-xs uppercase tracking-wide">Limpar Detalhamento</button>
+                                <button type="button" onclick="limparDetalhesVeiculos()" class="w-full bg-red-500 text-white p-2 rounded-md font-bold shadow hover:bg-red-600 transition-colors text-xs uppercase tracking-wide">Limpar Detalhamento</button>
                             </div>
 				
                         </div>
@@ -307,11 +302,17 @@
         }
 
         const GOOGLE_SCRIPT_URL ="https://script.google.com/macros/s/AKfycbzH1s1BBWHp_PtuUwNKNS2Ys3dwS5-h2o6hrFqWPYeoZjGL-tx_w-4bLgEUV2lx04pr/exec"; 
-			// "https://script.google.com/macros/s/AKfycbwDLDqgq7I1O9piwzosnMTnCYdm46jhG-uHu1tXMZ8_qMLfYmyjrILiUBz5lb_2QKo/exec"; 
 
         let tituloFormatado = "";
         
-        // Formatar Valores (se vazio retorna 0 pro relatório)
+        // Função utilitária nova: formata o número preenchendo com 0 (ex: 2 -> 02, 0 -> 00)
+        function formatarDoisDigitos(val) {
+            let num = parseInt(val, 10);
+            if (isNaN(num)) return val;
+            return num < 10 ? '0' + num : num.toString();
+        }
+        
+        // Formatar Valores base (retorna 0 interno pro envio do formulário/planilha)
         function formatVal(id) { 
             const val = document.getElementById(id).value;
             return (val === undefined || val === null || val.trim() === "") ? '0' : val;
@@ -357,18 +358,18 @@
                 preencherCamposVazios();
                 
                 const opmRadio = document.querySelector('input[name="opm"]:checked');
-let opm = "";
+                let opm = "";
 
-if (opmRadio) {
-    if (opmRadio.value === "custom") {
-        // Se a opção personalizada foi marcada, pega o texto digitado
-        opm = document.getElementById('opm-custom-input').value.trim();
-        // Se o usuário clicou mas não digitou nada, coloca um aviso
-        if (opm === "") opm = "Equipe Não Informada"; 
-    } else {
-        opm = opmRadio.value;
-    }
-}
+                if (opmRadio) {
+                    if (opmRadio.value === "custom") {
+                        // Se a opção personalizada foi marcada, pega o texto digitado
+                        opm = document.getElementById('opm-custom-input').value.trim();
+                        // Se o usuário clicou mas não digitou nada, coloca um aviso
+                        if (opm === "") opm = "Equipe Não Informada"; 
+                    } else {
+                        opm = opmRadio.value;
+                    }
+                }
                 
                 if (!opm) {
                     feedbackElement.textContent = 'Atenção: Selecione a OPM antes de continuar.';
@@ -393,7 +394,8 @@ if (opmRadio) {
                     let arrayFormatado = chavesVeiculos.map(chave => {
                         let qtd = detalhesVeiculos[chave];
                         let qtdFormatada = qtd < 10 ? `0${qtd}` : qtd;
-                        return `- ${qtdFormatada} ${chave}`;
+                        // Aplica o formato negrito também no relatório final detalhado dos veículos
+                        return `- *${qtdFormatada}* ${chave}`;
                     });
                     
                     obsFinal += `Detalhamento de Veículos:\n` + arrayFormatado.join("\n");
@@ -432,6 +434,7 @@ if (opmRadio) {
                     opVigentes: typeof OPERACOES_VIGENTES !== 'undefined' ? OPERACOES_VIGENTES : "0"
                 };
 
+                // Formatação final do relatório: envolto em asteriscos (*) para negrito e forçando 2 dígitos[cite: 3]
                 const reportString = `*🚔🚨 14ª CIPM - ${data.opm} 🚨🚔*
 				
 📋${tituloFormatado}
@@ -439,43 +442,43 @@ if (opmRadio) {
 🔹Operações vigentes: ${data.opVigentes}
 
 ─────────
-*${data.viaturas}* Viaturas empregadas
-*${data.efetivo}* Efetivo empregado: 
+*${formatarDoisDigitos(data.viaturas)}* Viaturas empregadas
+*${formatarDoisDigitos(data.efetivo)}* Efetivo empregado
 
 ─────────
-${data.ocorrencias} Ocorrências Atendidas
-${data.veiculosAbordados} Veículos abordados
-${data.pessoasAbordadas} Pessoas abordadas
+*${formatarDoisDigitos(data.ocorrencias)}* Ocorrências Atendidas
+*${formatarDoisDigitos(data.veiculosAbordados)}* Veículos abordados
+*${formatarDoisDigitos(data.pessoasAbordadas)}* Pessoas abordadas
 
 ─────────
-${data.mpu} MPU fiscalizadas
-${data.rondas} Rondas escolares
-${data.indigena} Policiamento indígena
-${data.palestras} Palestras e cursos ministrados
+*${formatarDoisDigitos(data.mpu)}* MPU fiscalizadas
+*${formatarDoisDigitos(data.rondas)}* Rondas escolares
+*${formatarDoisDigitos(data.indigena)}* Policiamento indígena
+*${formatarDoisDigitos(data.palestras)}* Palestras e cursos ministrados
 
 ─────────
-${data.sinistros} Sinistros de trânsito atendidos
-${data.veicRemov} Veículos removidos (trânsito)
-${data.blitz} Blitz preventiva e/ou trânsito
-${data.bloqueio} Bloqueio/barreira policial
-${data.aits} AITs
+*${formatarDoisDigitos(data.sinistros)}* Sinistros de trânsito atendidos
+*${formatarDoisDigitos(data.veicRemov)}* Veículos removidos (trânsito)
+*${formatarDoisDigitos(data.blitz)}* Blitz preventiva e/ou trânsito
+*${formatarDoisDigitos(data.bloqueio)}* Bloqueio/barreira policial
+*${formatarDoisDigitos(data.aits)}* AITs
 
 ─────────
-${data.veicRecup} Veículos recuperados
-${data.veicCrime} Veículos apreendidos (crime)
-${data.armas} Armas de fogo apreendidas
+*${formatarDoisDigitos(data.veicRecup)}* Veículos recuperados
+*${formatarDoisDigitos(data.veicCrime)}* Veículos apreendidos (crime)
+*${formatarDoisDigitos(data.armas)}* Armas de fogo apreendidas
 
 ─────────
-${data.pEncam} Pessoas encaminhadas à delegacia
-${data.pMenor} Menores apreendidos
-${data.pPreso} Pessoas presas flagrante/TCO
-${data.pMandado} Mandados de prisões cumpridos
+*${formatarDoisDigitos(data.pEncam)}* Pessoas encaminhadas à delegacia
+*${formatarDoisDigitos(data.pMenor)}* Menores apreendidos
+*${formatarDoisDigitos(data.pPreso)}* Pessoas presas flagrante/TCO
+*${formatarDoisDigitos(data.pMandado)}* Mandados de prisões cumpridos
 
 ─────────
-Drogas apreendidas: 
-Outras apreensões: ${data.outras}
-${data.qtdRos} Quantidade de RO's 
+*${formatarDoisDigitos(data.qtdRos)}* Quantidade de RO's 
 Descrição/Numeros dos RO's: ${data.descRos}
+Drogas apreendidas: ${data.drogas}
+Outras apreensões: ${data.outras}
 Observação: ${data.obs}`.trim();
 
                 return { text: reportString, rawData: data };
