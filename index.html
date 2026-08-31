@@ -476,10 +476,14 @@
 
 ─────────
 *${formatarDoisDigitos(data.qtdRos)}* Quantidade de RO's 
-Descrição/Numeros dos RO's: ${data.descRos}
-Drogas apreendidas: ${data.drogas}
-Outras apreensões: ${data.outras}
-Observação: ${data.obs}`.trim();
+Descrição/Numeros dos RO's: 
+	- ${data.descRos}
+Drogas apreendidas: 
+	- ${data.drogas}
+Outras apreensões: 
+	- ${data.outras}
+Observação: 
+	- ${data.obs}`.trim();
 
                 return { text: reportString, rawData: data };
             }
