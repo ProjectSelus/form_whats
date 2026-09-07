@@ -12,7 +12,7 @@ const agendaOperacoes = [
     {
         nome: "Op. PRODETOP 3B",
         inicio: "2026-09-03",
-        fim: "2026-09-05"
+        fim: "2026-09-22"
     },
     {
         nome: "Op. PROVIAVIDAS II 3A",
