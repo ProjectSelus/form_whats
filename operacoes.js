@@ -16,8 +16,14 @@ const agendaOperacoes = [
     },
     {
         nome: "Op. PROVIAVIDAS II 3A",
-        inicio: "2026-11-14",
-        fim: "2026-11-26"
+        inicio: "2026-09-15",
+        fim: "2026-09-26"
+    },
+    
+    {
+        nome: "Op. Integração 14",
+        inicio: "2026-09-25",
+        fim: "2026-09-27"
     }
     // Para adicionar mais, basta colocar uma vírgula no fechamento da chave } e criar um novo bloco.
 ];
