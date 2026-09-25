@@ -24,6 +24,12 @@ const agendaOperacoes = [
         nome: "Op. Integração 14",
         inicio: "2026-09-25",
         fim: "2026-09-27"
+    },
+
+    {
+        nome: "Op. Força TOtal",
+        inicio: "2026-09-25",
+        fim: "2026-09-26"
     }
     // Para adicionar mais, basta colocar uma vírgula no fechamento da chave } e criar um novo bloco.
 ];
