@@ -257,7 +257,71 @@ function processarArquivosTXT() {
   return `Automação concluída! ${processadosCount} arquivo(s) processado(s):\n\n` + logResultados.join("\n");
 }
 
-// 4. SERVE OS DADOS PARA O SITE (API JSON) OU EXIBE A PÁGINA WEB
+// ================= CONTROLE DE ACESSO E SEGURANÇA PMMS =================
+const CLIENT_ID_GOOGLE = '81878847414-f2lt8p7fbkjkh46julqdgfuhfcvau22o.apps.googleusercontent.com';
+const EMAIL_GOOGLE_GROUP = '14cipm-geral@googlegroups.com';
+const NOME_ABA_AUTORIZADOS = 'Autorizados'; // Permite cadastrar e-mails extras diretamente na planilha
+// =======================================================================
+
+// Valida o token emitido pelo Google e retorna o e-mail autenticado
+function obterEmailVerificadoDoToken(idToken) {
+  if (!idToken) return null;
+  try {
+    var url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(idToken);
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (resp.getResponseCode() === 200) {
+      var json = JSON.parse(resp.getContentText());
+      if (json.aud === CLIENT_ID_GOOGLE && (json.email_verified === "true" || json.email_verified === true)) {
+        return json.email.toLowerCase();
+      }
+    }
+  } catch (e) {
+    console.error("Erro ao validar token Google: " + e.message);
+  }
+  return null;
+}
+
+// Verifica se o e-mail tem permissão no Google Group ou na aba Autorizados
+function verificarAutorizacao(email) {
+  if (!email) return false;
+  email = email.trim().toLowerCase();
+
+  // 1. Verifica no Google Group da 14ª CIPM
+  try {
+    if (EMAIL_GOOGLE_GROUP) {
+      var grupo = GroupsApp.getGroupByEmail(EMAIL_GOOGLE_GROUP);
+      if (grupo && grupo.hasUser(email)) {
+        return true;
+      }
+    }
+  } catch (e) {
+    console.warn("Aviso ao consultar Google Groups: " + e.message);
+  }
+
+  // 2. Verifica na aba 'Autorizados' da planilha (como lista extra ou contingência)
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var aba = ss.getSheetByName(NOME_ABA_AUTORIZADOS);
+    if (aba) {
+      var ultimaLinha = aba.getLastRow();
+      if (ultimaLinha >= 2) {
+        var dados = aba.getRange(2, 1, ultimaLinha - 1, 1).getValues();
+        for (var i = 0; i < dados.length; i++) {
+          var eCad = dados[i][0] ? dados[i][0].toString().trim().toLowerCase() : "";
+          if (eCad === email) {
+            return true;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Aviso ao consultar aba Autorizados: " + e.message);
+  }
+
+  return false;
+}
+
+// 4. SERVE OS DADOS PARA O SITE (API JSON COM AUTENTICAÇÃO) OU EXIBE A PÁGINA WEB
 function doGet(e) {
   // Se for solicitado explicitamente o HTML (ex: no link do Apps Script com ?formato=html)
   if (e && e.parameter && e.parameter.formato === 'html') {
@@ -267,8 +331,38 @@ function doGet(e) {
       .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
   }
 
-  // Padrão: Retorna os dados em JSON da planilha para o site GitHub Pages (https://relatorio.zerog.com.br/eventos)
+  // 1. Obtém o e-mail do usuário através do Token Google ou da Sessão Google
+  var emailUsuario = null;
+  var token = e && e.parameter ? e.parameter.token : null;
+
+  if (token) {
+    emailUsuario = obterEmailVerificadoDoToken(token);
+  } else {
+    try {
+      emailUsuario = Session.getActiveUser().getEmail();
+    } catch (err) {}
+  }
+
+  // 2. Se não foi possível identificar o e-mail ou o token é inválido/expirado
+  if (!emailUsuario) {
+    return ContentService.createTextOutput(JSON.stringify({
+      erro: "Acesso restrito. Faça login com sua conta Google autorizada.",
+      requerLogin: true
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 3. Verifica se o e-mail está autorizado no Google Group ou na Planilha
+  if (!verificarAutorizacao(emailUsuario)) {
+    return ContentService.createTextOutput(JSON.stringify({
+      erro: "Acesso não autorizado para o e-mail: " + emailUsuario + ". Seu e-mail precisa estar cadastrado no grupo da 14ª CIPM.",
+      naoAutorizado: true,
+      email: emailUsuario
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 4. E-mail autorizado com sucesso! Retorna as ocorrências da planilha
   var dados = obterOcorrencias();
+  dados.usuario = emailUsuario;
   return ContentService.createTextOutput(JSON.stringify(dados))
     .setMimeType(ContentService.MimeType.JSON);
 }

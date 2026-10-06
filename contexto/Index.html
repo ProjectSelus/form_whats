@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>PMMS - 14ª CIPM | Solicitações de Serviços (SS)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Google Identity Services (Login com Google) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * {
       box-sizing: border-box;
@@ -91,9 +93,118 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
 
+    /* Barra de Usuário Autenticado no Cabeçalho */
+    .auth-user-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      padding: 4px 14px;
+      font-size: 0.76rem;
+      color: #cbd5e1;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.5);
+      color: #ffffff;
+    }
+
     /* Área de Conteúdo */
     .content-area {
       padding: 24px 24px 30px;
+    }
+
+    /* Box de Autenticação / Bloqueio */
+    .auth-box {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 44px 24px;
+      text-align: center;
+      max-width: 540px;
+      margin: 20px auto;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .auth-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .auth-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .auth-desc {
+      font-size: 0.9rem;
+      color: #475569;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .auth-btn-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 16px 0;
+      min-height: 48px;
+    }
+
+    .auth-footer-note {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .auth-error-box {
+      background: #fef2f2;
+      border: 1.5px solid #fecaca;
+      color: #991b1b;
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      margin: 16px 0;
+      text-align: left;
+    }
+
+    .btn-retry {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 0.2s;
+    }
+
+    .btn-retry:hover {
+      background: #1e293b;
     }
 
     /* Guias dos Dias */
@@ -229,7 +340,7 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
       transition: all 0.2s;
       display: flex;
-      flex-direction: column; /* Organização vertical */
+      flex-direction: column;
     }
 
     .card-item:hover {
@@ -286,7 +397,7 @@
       color: #334155;
       line-height: 1.5;
       margin-bottom: 12px;
-      flex-grow: 1; /* Ocupa o espaço restante para manter os botões inferiores alinhados */
+      flex-grow: 1;
     }
 
     .card-atividade strong {
@@ -301,7 +412,7 @@
     .card-actions {
       display: flex;
       justify-content: flex-end;
-      margin-top: auto; /* Fixa o botão sempre no fundo do cartão */
+      margin-top: auto;
     }
 
     .btn-anexo {
@@ -326,7 +437,7 @@
       background: #143527;
     }
 
-    /* Mensagens de estado estendem-se por todas as colunas */
+    /* Mensagens de estado */
     .empty-box, .loading-spinner {
       grid-column: 1 / -1;
     }
@@ -369,15 +480,12 @@
     }
 
     /* ================= RESPONSIVIDADE ================= */
-    
-    /* Ecrãs médios (Tablets ou portáteis pequenos): 2 colunas */
     @media (max-width: 992px) {
       .card-list {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    /* Ecrãs pequenos (Telemóveis / Smartphones): 1 coluna */
     @media (max-width: 640px) {
       .header-title {
         font-size: 1.15rem;
@@ -391,6 +499,9 @@
       .tabs-grid {
         grid-template-columns: 1fr 1fr 1fr;
       }
+      .auth-box {
+        padding: 30px 16px;
+      }
     }
   </style>
 </head>
@@ -399,67 +510,115 @@
   <div class="app-card">
     <!-- Topo Institucional Oficial PMMS -->
     <div class="header-banner">
-      <img src="https://raw.githubusercontent.com/ProjectSelus/form_whats/main/Bras%C3%A3o_PMMS.PNG" 
+      <img src="../Brasão_PMMS.PNG" 
            alt="Brasão PMMS" 
            class="brasao-pmms"
-           onerror="this.src='https://commons.wikimedia.org/wiki/Special:FilePath/Bras%C3%A3o_PMMS.PNG';">
+           onerror="if(this.src!=='https://raw.githubusercontent.com/ProjectSelus/form_whats/main/Bras%C3%A3o_PMMS.PNG'){this.src='https://raw.githubusercontent.com/ProjectSelus/form_whats/main/Bras%C3%A3o_PMMS.PNG'}else{this.src='https://commons.wikimedia.org/wiki/Special:FilePath/Bras%C3%A3o_PMMS.PNG'}">
       <div class="header-sub">POLÍCIA MILITAR DE MATO GROSSO DO SUL • 14ª CIPM</div>
       <h1 class="header-title" id="tituloTopo">Solicitações de Serviços (SS) do dia...</h1>
       <div class="badge-vigente" id="badgeOperacoes">
         <span>🛡️</span>
         <span id="textoOperacoes">Operações vigentes: Cartão Programa & Policiamento Ostensivo</span>
       </div>
+      <!-- Barra do Usuário Logado -->
+      <div id="authUserInfo" class="auth-user-bar" style="display: none;"></div>
     </div>
 
     <!-- Conteúdo Principal -->
     <div class="content-area">
       
-      <!-- Seletor de Guias (Dias) -->
-      <div class="section-label">
-        <span>SELEÇÃO DE DIAS</span>
-        <button class="btn-nav" onclick="carregarDados()">🔄 Atualizar</button>
-      </div>
+      <!-- Bloco de Autenticação / Restrição de Acesso -->
+      <div id="authSection" class="auth-box">
+        <div class="auth-icon" id="authIcon">🔒</div>
+        <h2 class="auth-title" id="authTitle">Acesso Restrito ao Efetivo</h2>
+        <p class="auth-desc" id="authDesc">
+          Para visualizar as Solicitações de Serviços (SS) e escalas do dia, autentique-se com sua conta Google cadastrada no grupo da 14ª CIPM.
+        </p>
 
-      <div class="tabs-grid">
-        <button class="tab-button" id="tabOntem" onclick="selecionarOffset(-1)">
-          <span>Ontem</span>
-          <span class="sub-date" id="dataOntemSub">--/--</span>
-        </button>
-        <button class="tab-button active" id="tabHoje" onclick="selecionarOffset(0)">
-          <span>Hoje</span>
-          <span class="sub-date" id="dataHojeSub">--/--</span>
-        </button>
-        <button class="tab-button" id="tabAmanha" onclick="selecionarOffset(1)">
-          <span>Amanhã</span>
-          <span class="sub-date" id="dataAmanhaSub">--/--</span>
-        </button>
-      </div>
+        <!-- Mensagem de Erro / Acesso Negado -->
+        <div id="authErrorBox" class="auth-error-box" style="display: none;"></div>
 
-      <!-- Navegação Extra -->
-      <div class="nav-controls">
-        <button class="btn-nav" onclick="mudarDiaRelativo(-1)">◀ Dia Anterior</button>
-        <span class="date-indicator" id="rotuloDataAtual">A carregar data...</span>
-        <button class="btn-nav" onclick="mudarDiaRelativo(1)">Próximo Dia ▶</button>
-      </div>
-
-      <!-- Faixa de Ocorrências -->
-      <div class="section-banner">
-        <span>OCORRÊNCIAS & ORDENS DE SERVIÇO</span>
-        <span class="banner-counter" id="contadorOcorrencias">0 registo(s)</span>
-      </div>
-
-      <!-- Grelha de Cartões -->
-      <div id="cardsList" class="card-list">
-        <div class="loading-spinner">
-          <div class="spin"></div>
-          A sincronizar com a escala...
+        <!-- Botão Oficial do Google -->
+        <div class="auth-btn-container" id="googleBtnWrapper">
+          <div id="g_id_onload"
+               data-client_id="81878847414-f2lt8p7fbkjkh46julqdgfuhfcvau22o.apps.googleusercontent.com"
+               data-callback="handleCredentialResponse"
+               data-auto_prompt="true">
+          </div>
+          <div class="g_id_signin"
+               data-type="standard"
+               data-size="large"
+               data-theme="outline"
+               data-text="sign_in_with"
+               data-shape="rectangular"
+               data-logo_alignment="left">
+          </div>
         </div>
+
+        <button id="btnTrocarConta" class="btn-retry" style="display: none;" onclick="trocarContaGoogle()">
+          🔄 Tentar com outra conta Google
+        </button>
+
+        <p class="auth-footer-note">
+          🛡️ Acesso restrito a integrantes cadastrados no grupo <strong>14cipm-geral@googlegroups.com</strong>
+        </p>
+      </div>
+
+      <!-- Bloco Operacional (Escalas e Ordens de Serviço) -->
+      <div id="mainContentSection" style="display: none;">
+        
+        <!-- Seletor de Guias (Dias) -->
+        <div class="section-label">
+          <span>SELEÇÃO DE DIAS</span>
+          <button class="btn-nav" onclick="carregarDados()">🔄 Atualizar</button>
+        </div>
+
+        <div class="tabs-grid">
+          <button class="tab-button" id="tabOntem" onclick="selecionarOffset(-1)">
+            <span>Ontem</span>
+            <span class="sub-date" id="dataOntemSub">--/--</span>
+          </button>
+          <button class="tab-button active" id="tabHoje" onclick="selecionarOffset(0)">
+            <span>Hoje</span>
+            <span class="sub-date" id="dataHojeSub">--/--</span>
+          </button>
+          <button class="tab-button" id="tabAmanha" onclick="selecionarOffset(1)">
+            <span>Amanhã</span>
+            <span class="sub-date" id="dataAmanhaSub">--/--</span>
+          </button>
+        </div>
+
+        <!-- Navegação Extra -->
+        <div class="nav-controls">
+          <button class="btn-nav" onclick="mudarDiaRelativo(-1)">◀ Dia Anterior</button>
+          <span class="date-indicator" id="rotuloDataAtual">A carregar data...</span>
+          <button class="btn-nav" onclick="mudarDiaRelativo(1)">Próximo Dia ▶</button>
+        </div>
+
+        <!-- Faixa de Ocorrências -->
+        <div class="section-banner">
+          <span>OCORRÊNCIAS & ORDENS DE SERVIÇO</span>
+          <span class="banner-counter" id="contadorOcorrencias">0 registo(s)</span>
+        </div>
+
+        <!-- Grelha de Cartões -->
+        <div id="cardsList" class="card-list">
+          <div class="loading-spinner">
+            <div class="spin"></div>
+            A sincronizar com a escala...
+          </div>
+        </div>
+
       </div>
 
     </div>
   </div>
 
   <script>
+    // Configurações Oficiais
+    const CLIENT_ID_GOOGLE = "81878847414-f2lt8p7fbkjkh46julqdgfuhfcvau22o.apps.googleusercontent.com";
+    const SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbwHoaSSDn417xzEBtawLg_wTjC3saLZ4KFSCKlIdM-M8ZDldH3S_Rnx8PL-VxqEbzvv/exec";
+
     // Agenda de operações sincronizada com o calendário institucional
     const agendaOperacoes = [
       { nome: "Op. Integrada Mulher Segura", inicio: "2026-09-01", fim: "2027-01-01" },
@@ -486,9 +645,113 @@
     let todasOcorrencias = [];
     let dataReferencia = new Date();
 
+    // Decodifica o payload do JWT emitido pelo Google Identity
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Callback oficial executado quando o policial faz login com o Google
+    function handleCredentialResponse(response) {
+      if (!response || !response.credential) return;
+
+      const payload = parseJwt(response.credential);
+      if (!payload || !payload.email) {
+        mostrarErroAuth("Não foi possível identificar a conta Google. Tente novamente.");
+        return;
+      }
+
+      localStorage.setItem('pmms_id_token', response.credential);
+      localStorage.setItem('pmms_user_email', payload.email);
+      localStorage.setItem('pmms_user_name', payload.name || payload.email);
+
+      atualizarBadgeUsuario(payload.name || payload.email, payload.email);
+      carregarDados();
+    }
+
+    function atualizarBadgeUsuario(nome, email) {
+      const bar = document.getElementById('authUserInfo');
+      bar.innerHTML = `
+        <span>👤 ${nome} (${email})</span>
+        <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+      `;
+      bar.style.display = 'inline-flex';
+    }
+
+    function mostrarTelaLogin() {
+      document.getElementById('authSection').style.display = 'block';
+      document.getElementById('mainContentSection').style.display = 'none';
+      document.getElementById('authUserInfo').style.display = 'none';
+      document.getElementById('authIcon').innerText = '🔒';
+      document.getElementById('authTitle').innerText = 'Acesso Restrito ao Efetivo';
+      document.getElementById('authDesc').innerText = 'Para visualizar as Solicitações de Serviços (SS) e escalas do dia, autentique-se com sua conta Google cadastrada no grupo da 14ª CIPM.';
+      document.getElementById('authErrorBox').style.display = 'none';
+      document.getElementById('googleBtnWrapper').style.display = 'flex';
+      document.getElementById('btnTrocarConta').style.display = 'none';
+    }
+
+    function mostrarTelaNaoAutorizado(email) {
+      document.getElementById('authSection').style.display = 'block';
+      document.getElementById('mainContentSection').style.display = 'none';
+      document.getElementById('authIcon').innerText = '🚫';
+      document.getElementById('authTitle').innerText = 'Acesso Não Autorizado';
+      document.getElementById('authDesc').innerText = 'Identificamos sua conta Google, porém ela não possui permissão de acesso à escala operacional.';
+      
+      const errBox = document.getElementById('authErrorBox');
+      errBox.innerHTML = `
+        <strong>Conta:</strong> ${email}<br>
+        <strong>Motivo:</strong> Este e-mail não consta como membro do grupo <em>14cipm-geral@googlegroups.com</em> nem na lista de autorizados da 14ª CIPM.<br>
+        <span style="font-size:0.75rem; color:#b91c1c; display:block; margin-top:6px;">Caso faça parte do efetivo, solicite a inclusão do seu e-mail ao comando ou P3 da 14ª CIPM.</span>
+      `;
+      errBox.style.display = 'block';
+
+      document.getElementById('googleBtnWrapper').style.display = 'none';
+      document.getElementById('btnTrocarConta').style.display = 'inline-block';
+    }
+
+    function mostrarErroAuth(mensagem) {
+      const errBox = document.getElementById('authErrorBox');
+      errBox.innerText = mensagem;
+      errBox.style.display = 'block';
+    }
+
+    function trocarContaGoogle() {
+      fazerLogout();
+    }
+
+    function fazerLogout() {
+      localStorage.removeItem('pmms_id_token');
+      localStorage.removeItem('pmms_user_email');
+      localStorage.removeItem('pmms_user_name');
+      
+      if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+      }
+
+      mostrarTelaLogin();
+    }
+
     window.onload = function() {
       atualizarRotulosGuias();
-      carregarDados();
+
+      const tokenSalvo = localStorage.getItem('pmms_id_token');
+      const emailSalvo = localStorage.getItem('pmms_user_email');
+      const nomeSalvo = localStorage.getItem('pmms_user_name');
+
+      if (tokenSalvo && emailSalvo) {
+        atualizarBadgeUsuario(nomeSalvo || emailSalvo, emailSalvo);
+        carregarDados();
+      } else {
+        mostrarTelaLogin();
+      }
     };
 
     function formatarDataBR(data) {
@@ -545,10 +808,17 @@
       document.getElementById('tabAmanha').classList.toggle('active', difDias === 1);
     }
 
-    // URL da API do Google Apps Script (utilizada ao acessar via GitHub Pages / domínio próprio)
-    const SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbwHoaSSDn417xzEBtawLg_wTjC3saLZ4KFSCKlIdM-M8ZDldH3S_Rnx8PL-VxqEbzvv/exec";
-
     function carregarDados() {
+      const token = localStorage.getItem('pmms_id_token');
+
+      // Se estiver rodando fora do Apps Script e não tiver token
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+        if (!token) {
+          mostrarTelaLogin();
+          return;
+        }
+      }
+
       document.getElementById('cardsList').innerHTML = `
         <div class="loading-spinner">
           <div class="spin"></div>
@@ -557,14 +827,35 @@
       `;
 
       function processarSucesso(resposta) {
-        if (!resposta || resposta.erro) {
+        if (!resposta) {
           document.getElementById('cardsList').innerHTML = `
-            <div class="empty-box">
-              <span>⚠️</span>
-              <p>${(resposta && resposta.erro) ? resposta.erro : 'Nenhum dado retornado da planilha.'}</p>
-            </div>`;
+            <div class="empty-box"><span>⚠️</span><p>Resposta vazia da planilha.</p></div>`;
           return;
         }
+
+        // Se o token expirou ou precisa de novo login
+        if (resposta.requerLogin) {
+          fazerLogout();
+          mostrarErroAuth("Sessão expirada. Por favor, conecte-se com sua conta Google novamente.");
+          return;
+        }
+
+        // Se o e-mail não tiver permissão no Google Group ou na planilha
+        if (resposta.naoAutorizado) {
+          mostrarTelaNaoAutorizado(resposta.email || localStorage.getItem('pmms_user_email'));
+          return;
+        }
+
+        if (resposta.erro) {
+          document.getElementById('cardsList').innerHTML = `
+            <div class="empty-box"><span>⚠️</span><p>${resposta.erro}</p></div>`;
+          return;
+        }
+
+        // Sucesso: Libera a tela principal e exibe os cartões
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('mainContentSection').style.display = 'block';
+
         todasOcorrencias = resposta.ocorrencias || [];
         renderizarOcorrencias();
       }
@@ -585,7 +876,8 @@
           .obterOcorrencias();
       } else {
         // 2. Se estiver rodando no GitHub Pages (ex: relatorio.zerog.com.br/eventos)
-        fetch(SCRIPT_API_URL)
+        const urlFetch = SCRIPT_API_URL + "?token=" + encodeURIComponent(token);
+        fetch(urlFetch)
           .then(res => res.json())
           .then(processarSucesso)
           .catch(processarErro);

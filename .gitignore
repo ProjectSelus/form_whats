@@ -1,0 +1,3 @@
+# Arquivos de credenciais e segredos locais
+client_secret*.json
+*.secret.json
