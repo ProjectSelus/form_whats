@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>PMMS - 14ª CIPM | Solicitações de Serviços (SS)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #e9eef2;
+      color: #1e293b;
+      min-height: 100vh;
+      padding: 20px 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Contentor Principal alargado para acomodar 3 colunas */
+    .app-card {
+      width: 100%;
+      max-width: 1200px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topo / Cabeçalho Institucional Oficial PMMS */
+    .header-banner {
+      background: linear-gradient(180deg, #0f172a 0%, #09101d 100%);
+      color: #ffffff;
+      padding: 26px 20px 22px;
+      text-align: center;
+      position: relative;
+      border-bottom: 4px solid #134e4a;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .brasao-pmms {
+      height: 82px;
+      width: auto;
+      margin: 0 auto 12px auto;
+      display: block;
+      filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.4));
+      transition: transform 0.2s ease;
+    }
+
+    .brasao-pmms:hover {
+      transform: scale(1.03);
+    }
+
+    .header-sub {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+
+    .header-title {
+      font-size: 1.45rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 12px;
+      line-height: 1.3;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+    }
+
+    .badge-vigente {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(250, 204, 21, 0.45);
+      color: #facc15;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 18px;
+      border-radius: 9999px;
+      letter-spacing: 0.02em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Área de Conteúdo */
+    .content-area {
+      padding: 24px 24px 30px;
+    }
+
+    /* Guias dos Dias */
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #1e3a5f;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+
+    .tabs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .tab-button {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      color: #334155;
+      font-weight: 700;
+      font-size: 0.88rem;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .tab-button .sub-date {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .tab-button:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .tab-button.active {
+      background: #0c1a2d;
+      border-color: #0c1a2d;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(12, 26, 45, 0.2);
+    }
+
+    .tab-button.active .sub-date {
+      color: #cbd5e1;
+    }
+
+    /* Controlos de Navegação Rápida */
+    .nav-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-nav:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    .date-indicator {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* Faixa de Título de Seção */
+    .section-banner {
+      background: #1b4332;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 9px 16px;
+      border-radius: 6px;
+      margin: 18px 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .banner-counter {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    /* Grelha Responsiva de Cartões: Padrão Desktop = 3 Colunas */
+    .card-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    /* Cartão de Ocorrência */
+    .card-item {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column; /* Organização vertical */
+    }
+
+    .card-item:hover {
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.07);
+      border-color: #94a3b8;
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge-hora {
+      background: #0c1a2d;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 3px 9px;
+      border-radius: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-tag {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.35;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .card-atividade {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      color: #334155;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      flex-grow: 1; /* Ocupa o espaço restante para manter os botões inferiores alinhados */
+    }
+
+    .card-atividade strong {
+      display: block;
+      color: #0f172a;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: auto; /* Fixa o botão sempre no fundo do cartão */
+    }
+
+    .btn-anexo {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1b4332;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      transition: background 0.2s;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-anexo:hover {
+      background: #143527;
+    }
+
+    /* Mensagens de estado estendem-se por todas as colunas */
+    .empty-box, .loading-spinner {
+      grid-column: 1 / -1;
+    }
+
+    .empty-box {
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 36px 16px;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.88rem;
+    }
+
+    .empty-box span {
+      display: block;
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 40px 10px;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+
+    .spin {
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #0c1a2d;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      animation: rota 0.8s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes rota {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ================= RESPONSIVIDADE ================= */
+    
+    /* Ecrãs médios (Tablets ou portáteis pequenos): 2 colunas */
+    @media (max-width: 992px) {
+      .card-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Ecrãs pequenos (Telemóveis / Smartphones): 1 coluna */
+    @media (max-width: 640px) {
+      .header-title {
+        font-size: 1.15rem;
+      }
+      .content-area {
+        padding: 16px 12px;
+      }
+      .card-list {
+        grid-template-columns: 1fr;
+      }
+      .tabs-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-card">
+    <!-- Topo Institucional Oficial PMMS -->
+    <div class="header-banner">
+      <img src="https://raw.githubusercontent.com/ProjectSelus/form_whats/main/Bras%C3%A3o_PMMS.PNG" 
+           alt="Brasão PMMS" 
+           class="brasao-pmms"
+           onerror="this.src='https://commons.wikimedia.org/wiki/Special:FilePath/Bras%C3%A3o_PMMS.PNG';">
+      <div class="header-sub">POLÍCIA MILITAR DE MATO GROSSO DO SUL • 14ª CIPM</div>
+      <h1 class="header-title" id="tituloTopo">Solicitações de Serviços (SS) do dia...</h1>
+      <div class="badge-vigente" id="badgeOperacoes">
+        <span>🛡️</span>
+        <span id="textoOperacoes">Operações vigentes: Cartão Programa & Policiamento Ostensivo</span>
+      </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="content-area">
+      
+      <!-- Seletor de Guias (Dias) -->
+      <div class="section-label">
+        <span>SELEÇÃO DE DIAS</span>
+        <button class="btn-nav" onclick="carregarDados()">🔄 Atualizar</button>
+      </div>
+
+      <div class="tabs-grid">
+        <button class="tab-button" id="tabOntem" onclick="selecionarOffset(-1)">
+          <span>Ontem</span>
+          <span class="sub-date" id="dataOntemSub">--/--</span>
+        </button>
+        <button class="tab-button active" id="tabHoje" onclick="selecionarOffset(0)">
+          <span>Hoje</span>
+          <span class="sub-date" id="dataHojeSub">--/--</span>
+        </button>
+        <button class="tab-button" id="tabAmanha" onclick="selecionarOffset(1)">
+          <span>Amanhã</span>
+          <span class="sub-date" id="dataAmanhaSub">--/--</span>
+        </button>
+      </div>
+
+      <!-- Navegação Extra -->
+      <div class="nav-controls">
+        <button class="btn-nav" onclick="mudarDiaRelativo(-1)">◀ Dia Anterior</button>
+        <span class="date-indicator" id="rotuloDataAtual">A carregar data...</span>
+        <button class="btn-nav" onclick="mudarDiaRelativo(1)">Próximo Dia ▶</button>
+      </div>
+
+      <!-- Faixa de Ocorrências -->
+      <div class="section-banner">
+        <span>OCORRÊNCIAS & ORDENS DE SERVIÇO</span>
+        <span class="banner-counter" id="contadorOcorrencias">0 registo(s)</span>
+      </div>
+
+      <!-- Grelha de Cartões -->
+      <div id="cardsList" class="card-list">
+        <div class="loading-spinner">
+          <div class="spin"></div>
+          A sincronizar com a escala...
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Agenda de operações sincronizada com o calendário institucional
+    const agendaOperacoes = [
+      { nome: "Op. Integrada Mulher Segura", inicio: "2026-09-01", fim: "2027-01-01" },
+      { nome: "Operação Eleições 2026-1º TURNO", inicio: "2026-10-05", fim: "2026-10-05" },
+      { nome: "Op. PROVIAVIDAS II 3A", inicio: "2026-09-15", fim: "2026-09-26" },
+      { nome: "Op. Integração 14", inicio: "2026-09-25", fim: "2026-09-27" },
+      { nome: "Op. Força Total", inicio: "2026-09-25", fim: "2026-09-26" }
+    ];
+
+    function obterOperacoesVigentes(dataObj) {
+      const d = dataObj || new Date();
+      const ano = d.getFullYear();
+      const mes = String(d.getMonth() + 1).padStart(2, '0');
+      const dia = String(d.getDate()).padStart(2, '0');
+      const dataStr = `${ano}-${mes}-${dia}`;
+
+      const ativas = agendaOperacoes.filter(op => dataStr >= op.inicio && dataStr <= op.fim);
+      if (ativas.length === 0) {
+        return "Cartão Programa & Policiamento Ostensivo";
+      }
+      return ativas.map(op => op.nome).join(" • ");
+    }
+
+    let todasOcorrencias = [];
+    let dataReferencia = new Date();
+
+    window.onload = function() {
+      atualizarRotulosGuias();
+      carregarDados();
+    };
+
+    function formatarDataBR(data) {
+      const d = String(data.getDate()).padStart(2, '0');
+      const m = String(data.getMonth() + 1).padStart(2, '0');
+      const a = data.getFullYear();
+      return `${d}/${m}/${a}`;
+    }
+
+    function normalizarData(str) {
+      if (!str) return '';
+      str = str.trim();
+      const p = str.split('/');
+      if (p.length === 3) {
+        return p[0].padStart(2, '0') + '/' + p[1].padStart(2, '0') + '/' + p[2];
+      }
+      return str;
+    }
+
+    function atualizarRotulosGuias() {
+      const hoje = new Date();
+      const ontem = new Date(hoje);
+      ontem.setDate(hoje.getDate() - 1);
+      const amanha = new Date(hoje);
+      amanha.setDate(hoje.getDate() + 1);
+
+      document.getElementById('dataOntemSub').innerText = formatarDataBR(ontem).substring(0, 5);
+      document.getElementById('dataHojeSub').innerText = formatarDataBR(hoje).substring(0, 5);
+      document.getElementById('dataAmanhaSub').innerText = formatarDataBR(amanha).substring(0, 5);
+    }
+
+    function selecionarOffset(offset) {
+      const d = new Date();
+      d.setDate(d.getDate() + offset);
+      dataReferencia = d;
+      atualizarEstadoGuias();
+      renderizarOcorrencias();
+    }
+
+    function mudarDiaRelativo(delta) {
+      dataReferencia.setDate(dataReferencia.getDate() + delta);
+      atualizarEstadoGuias();
+      renderizarOcorrencias();
+    }
+
+    function atualizarEstadoGuias() {
+      const hoje = new Date();
+      const dRef = new Date(dataReferencia.getFullYear(), dataReferencia.getMonth(), dataReferencia.getDate());
+      const dHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+      const difDias = Math.round((dRef - dHoje) / (1000 * 60 * 60 * 24));
+
+      document.getElementById('tabOntem').classList.toggle('active', difDias === -1);
+      document.getElementById('tabHoje').classList.toggle('active', difDias === 0);
+      document.getElementById('tabAmanha').classList.toggle('active', difDias === 1);
+    }
+
+    // URL da API do Google Apps Script (utilizada ao acessar via GitHub Pages / domínio próprio)
+    const SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbwHoaSSDn417xzEBtawLg_wTjC3saLZ4KFSCKlIdM-M8ZDldH3S_Rnx8PL-VxqEbzvv/exec";
+
+    function carregarDados() {
+      document.getElementById('cardsList').innerHTML = `
+        <div class="loading-spinner">
+          <div class="spin"></div>
+          A sincronizar com a escala...
+        </div>
+      `;
+
+      function processarSucesso(resposta) {
+        if (!resposta || resposta.erro) {
+          document.getElementById('cardsList').innerHTML = `
+            <div class="empty-box">
+              <span>⚠️</span>
+              <p>${(resposta && resposta.erro) ? resposta.erro : 'Nenhum dado retornado da planilha.'}</p>
+            </div>`;
+          return;
+        }
+        todasOcorrencias = resposta.ocorrencias || [];
+        renderizarOcorrencias();
+      }
+
+      function processarErro(err) {
+        document.getElementById('cardsList').innerHTML = `
+          <div class="empty-box">
+            <span>❌</span>
+            <p>Erro na comunicação com a planilha: ${err.message || err}</p>
+          </div>`;
+      }
+
+      // 1. Se estiver rodando dentro do próprio Apps Script
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(processarSucesso)
+          .withFailureHandler(processarErro)
+          .obterOcorrencias();
+      } else {
+        // 2. Se estiver rodando no GitHub Pages (ex: relatorio.zerog.com.br/eventos)
+        fetch(SCRIPT_API_URL)
+          .then(res => res.json())
+          .then(processarSucesso)
+          .catch(processarErro);
+      }
+    }
+
+    function renderizarOcorrencias() {
+      const dataFormatada = formatarDataBR(dataReferencia);
+      const diasSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+      const diaSemanaNome = diasSemana[dataReferencia.getDay()];
+
+      const diaAmanha = new Date(dataReferencia);
+      diaAmanha.setDate(diaAmanha.getDate() + 1);
+      const dataAmanhaFormatada = formatarDataBR(diaAmanha);
+      
+      document.getElementById('tituloTopo').innerText = 
+        `Solicitações de Serviços (SS) do dia ${dataFormatada.substring(0, 2)} para o dia ${dataAmanhaFormatada}`;
+
+      const elOperacoes = document.getElementById('textoOperacoes');
+      if (elOperacoes) {
+        elOperacoes.innerText = `Operações vigentes: ${obterOperacoesVigentes(dataReferencia)}`;
+      }
+
+      document.getElementById('rotuloDataAtual').innerText = `${dataFormatada} (${diaSemanaNome})`;
+
+      // Filtra as ocorrências
+      const filtradas = todasOcorrencias.filter(item => {
+        const itemData = normalizarData(item.data);
+        if (itemData === dataFormatada) return true;
+        if (itemData.toUpperCase() === 'TODO DIA') return true;
+        
+        if (itemData.includes('FEIRA') || itemData.includes('ª')) {
+          const mapDias = { 1: '2ª', 2: '3ª', 3: '4ª', 4: '5ª', 5: '6ª' };
+          const prefixo = mapDias[dataReferencia.getDay()];
+          if (prefixo && itemData.includes(prefixo)) return true;
+        }
+        return false;
+      });
+
+      // Ordena por horário crescente
+      filtradas.sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
+
+      document.getElementById('contadorOcorrencias').innerText = `${filtradas.length} registo(s)`;
+
+      const container = document.getElementById('cardsList');
+
+      if (filtradas.length === 0) {
+        container.innerHTML = `
+          <div class="empty-box">
+            <span>📋</span>
+            <strong>Nenhuma ocorrência agendada</strong>
+            <p style="margin-top:4px;">Não constam registos para o dia ${dataFormatada}.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let htmlCards = '';
+      filtradas.forEach(ev => {
+        const temArquivo = ev.arquivo && ev.arquivo.startsWith('http');
+        const tag = (ev.data.toUpperCase() === 'TODO DIA') ? 'Ordem Diária' : 'Cartão Programa';
+
+        htmlCards += `
+          <div class="card-item">
+            <div class="card-header">
+              <span class="badge-hora">⏰ ${ev.hora || '--:--'}</span>
+              <span class="badge-tag">${tag}</span>
+            </div>
+
+            <div class="card-title">${ev.mensagem || 'OCORRÊNCIA SEM DESCRIÇÃO'}</div>
+
+            ${ev.atividade ? `
+              <div class="card-atividade">
+                <strong>Atividade Prevista:</strong>
+                ${ev.atividade}
+              </div>
+            ` : '<div class="card-atividade" style="visibility:hidden; height:0; padding:0; margin:0;"></div>'}
+
+            ${temArquivo ? `
+              <div class="card-actions">
+                <a href="${ev.arquivo}" target="_blank" class="btn-anexo">
+                  📎 Abrir Documento
+                </a>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      container.innerHTML = htmlCards;
+    }
+  </script>
+</body>
+</html>

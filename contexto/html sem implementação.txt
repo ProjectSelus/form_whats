@@ -1,0 +1,28 @@
+Formulário no Apps Script sem reimplantar a cada alteração
+Resposta ao Toninho – 06/10/2026
+Toninho, o segredo é que o script quase não tem nada. Ele só serve de "carregador": o formulário de verdade (o HTML) fica salvo como arquivo no Drive, e o script vai buscar esse arquivo pelo nome toda vez que alguém abre o link.
+Aí, quando eu altero alguma coisa, não mexo no script nem implanto de novo. Só jogo o HTML antigo na lixeira e subo o novo com o mesmo nome. O link /exec continua o mesmo e já abre a versão nova na hora.
+O script fica mais ou menos assim:
+function doGet(e) {
+  var html = lerArquivo('Meu-Formulario.html');
+  return HtmlService.createHtmlOutput(html)
+    .setTitle('Formulário')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+ 
+// procura o arquivo pelo nome e ignora o que está na lixeira
+function lerArquivo(nome) {
+  var arquivos = DriveApp.getFilesByName(nome);
+  while (arquivos.hasNext()) {
+    var f = arquivos.next();
+    if (!f.isTrashed()) return f.getBlob().getDataAsString('UTF-8');
+  }
+  throw new Error('Arquivo não encontrado: ' + nome);
+}
+ 
+Você implanta uma vez só e pronto. Daí pra frente, toda alteração é feita no arquivo do Drive.
+Duas dicas:
+•Se um dia precisar mexer no próprio script, não clica em "Nova implantação", porque isso gera um link novo. Vai em Implantar → Gerenciar implantações → lápis (editar) → Versão: Nova versão. Assim o link continua o mesmo.
+•Eu ainda coloquei um subdomínio meu redirecionando para o /exec, para ficar um endereço curto e fácil de passar para as pessoas.
+Para ir além
+Se ele também quiser deixar a parte que grava os dados fora do script, dá para fazer do mesmo jeito: um arquivo .js no Drive que o script lê e executa. É assim que funciona o Cadastro de Servidores. Mas isso é mais avançado e só deve ser feito com arquivos que só você edita, porque quem mexer no arquivo muda o que o script faz.
