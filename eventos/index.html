@@ -503,6 +503,268 @@
         padding: 30px 16px;
       }
     }
+
+    /* Estilos da Tabela Compacta em Tela e Impressão */
+    .table-view-container {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    .compact-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .compact-table th {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      padding: 10px 12px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.03em;
+      text-align: left;
+      border-bottom: 2px solid #134e4a;
+    }
+
+    .compact-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+      color: #1e293b;
+      line-height: 1.4;
+    }
+
+    .compact-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .compact-table tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    .badge-compact-tipo {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #334155;
+      text-transform: uppercase;
+    }
+
+    .badge-compact-hora {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .btn-print-action {
+      background: #134e4a;
+      color: #ffffff;
+      border: 1px solid #134e4a;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-print-action:hover {
+      background: #0f3d3a;
+    }
+
+    .btn-view-toggle {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-view-toggle:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Cabeçalho e Rodapé exclusivos para a folha de impressão */
+    .print-header-sheet, .print-footer-sheet {
+      display: none;
+    }
+
+    /* ================= FORMATO IMPRESSÃO COMPACTA A4 ================= */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 6mm 8mm 6mm 8mm;
+      }
+
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 8pt !important;
+      }
+
+      .app-card {
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .content-area {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      /* Esconde elementos de navegação e telas de tela */
+      .header-banner,
+      .section-label,
+      .tabs-grid,
+      .nav-controls,
+      .section-banner,
+      #cardsList,
+      .btn-nav,
+      .btn-print-action,
+      .btn-view-toggle,
+      .auth-user-bar,
+      .auth-box,
+      .loading-spinner,
+      .empty-box {
+        display: none !important;
+      }
+
+      /* Força a exibição da tabela compacta */
+      .table-view-container {
+        display: block !important;
+        border: 1px solid #475569 !important;
+        border-radius: 0 !important;
+        margin-top: 0 !important;
+      }
+
+      /* Exibe o cabeçalho impresso com o Brasão e identificação oficial */
+      .print-header-sheet {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 2px solid #000000;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+      }
+
+      .print-brasao-img {
+        height: 55px;
+        width: auto;
+      }
+
+      .print-header-info {
+        flex: 1;
+        text-align: center;
+      }
+
+      .print-header-sub {
+        font-size: 7.5pt;
+        font-weight: 800;
+        color: #000000;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+      }
+
+      .print-header-title {
+        font-size: 11pt;
+        font-weight: 900;
+        color: #000000;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+      }
+
+      .print-header-ops {
+        font-size: 7.5pt;
+        font-weight: 700;
+        color: #334155;
+      }
+
+      /* Tabela formatada para caber em 1 folha */
+      .compact-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 7.8pt !important;
+      }
+
+      .compact-table th {
+        background-color: #e2e8f0 !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 4px 6px !important;
+        font-size: 7.5pt !important;
+        border: 1px solid #475569 !important;
+      }
+
+      .compact-table td {
+        padding: 4px 6px !important;
+        border: 1px solid #94a3b8 !important;
+        color: #000000 !important;
+        line-height: 1.25 !important;
+      }
+
+      .compact-table tr {
+        page-break-inside: avoid !important;
+      }
+
+      .badge-compact-tipo {
+        background: transparent !important;
+        color: #000000 !important;
+        font-size: 7pt !important;
+        font-weight: 700 !important;
+        padding: 0 !important;
+      }
+
+      .btn-anexo-print {
+        display: none !important;
+      }
+
+      /* Rodapé com assinatura para a impressão */
+      .print-footer-sheet {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 14px;
+        padding-top: 6px;
+        font-size: 7pt;
+        color: #334155;
+        border-top: 1px solid #94a3b8;
+      }
+
+      .print-signature-box {
+        text-align: center;
+        width: 220px;
+      }
+
+      .print-signature-line {
+        border-top: 1px solid #000000;
+        margin-bottom: 3px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -570,7 +832,10 @@
         <!-- Seletor de Guias (Dias) -->
         <div class="section-label">
           <span>SELEÇÃO DE DIAS</span>
-          <button class="btn-nav" onclick="carregarDados()">🔄 Atualizar</button>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-nav" onclick="carregarDados()">🔄 Atualizar</button>
+            <button class="btn-print-action" onclick="imprimirEscala()">🖨️ Imprimir Lista</button>
+          </div>
         </div>
 
         <div class="tabs-grid">
@@ -598,14 +863,55 @@
         <!-- Faixa de Ocorrências -->
         <div class="section-banner">
           <span>OCORRÊNCIAS & ORDENS DE SERVIÇO</span>
-          <span class="banner-counter" id="contadorOcorrencias">0 registo(s)</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="btn-view-toggle" id="btnToggleModo" onclick="alternarModoVisualizacao()">📋 Ver em Lista</button>
+            <span class="banner-counter" id="contadorOcorrencias">0 registo(s)</span>
+          </div>
         </div>
 
-        <!-- Grelha de Cartões -->
+        <!-- Grelha de Cartões (Visualização Padrão para Tela) -->
         <div id="cardsList" class="card-list">
           <div class="loading-spinner">
             <div class="spin"></div>
             A sincronizar com a escala...
+          </div>
+        </div>
+
+        <!-- Tabela Compacta (Usada na Impressão A4 e no Modo Lista) -->
+        <div id="tableViewContainer" class="table-view-container" style="display: none;">
+          <!-- Cabeçalho Exclusivo para Impressão -->
+          <div class="print-header-sheet">
+            <img src="../Brasão_PMMS.PNG" class="print-brasao-img" alt="Brasão PMMS" onerror="if(this.src!=='https://raw.githubusercontent.com/ProjectSelus/form_whats/main/Bras%C3%A3o_PMMS.PNG'){this.src='https://raw.githubusercontent.com/ProjectSelus/form_whats/main/Bras%C3%A3o_PMMS.PNG'}else{this.src='https://commons.wikimedia.org/wiki/Special:FilePath/Bras%C3%A3o_PMMS.PNG'}">
+            <div class="print-header-info">
+              <div class="print-header-sub">POLÍCIA MILITAR DE MATO GROSSO DO SUL • 14ª CIPM / CPA-1</div>
+              <div class="print-header-title" id="printTitulo">SOLICITAÇÕES DE SERVIÇOS (SS) DO DIA</div>
+              <div class="print-header-ops" id="printOperacoes">Operações Vigentes: Cartão Programa & Policiamento Ostensivo</div>
+            </div>
+          </div>
+
+          <table class="compact-table">
+            <thead>
+              <tr>
+                <th style="width: 12%; text-align: center;">Horário</th>
+                <th style="width: 18%;">Modalidade</th>
+                <th style="width: 35%;">Local / Solicitação</th>
+                <th style="width: 35%;">Atividade Prevista</th>
+              </tr>
+            </thead>
+            <tbody id="printTableBody">
+              <!-- Gerado dinamicamente -->
+            </tbody>
+          </table>
+
+          <!-- Rodapé Exclusivo para Impressão -->
+          <div class="print-footer-sheet">
+            <div>
+              <span id="printDataEmissao"></span> • 14ª CIPM
+            </div>
+            <div class="print-signature-box">
+              <div class="print-signature-line"></div>
+              <span>Oficial / Graduado de Dia</span>
+            </div>
           </div>
         </div>
 
@@ -922,7 +1228,25 @@
 
       document.getElementById('contadorOcorrencias').innerText = `${filtradas.length} registo(s)`;
 
+      // Atualiza cabeçalho e rodapé da folha de impressão A4
+      const printTituloEl = document.getElementById('printTitulo');
+      if (printTituloEl) {
+        printTituloEl.innerText = `SOLICITAÇÕES DE SERVIÇOS (SS) • ${dataFormatada} (${diaSemanaNome.toUpperCase()})`;
+      }
+      const printOpsEl = document.getElementById('printOperacoes');
+      if (printOpsEl) {
+        printOpsEl.innerText = `Operações Vigentes: ${obterOperacoesVigentes(dataReferencia)}`;
+      }
+      const printDataEl = document.getElementById('printDataEmissao');
+      if (printDataEl) {
+        const agora = new Date();
+        const dataStr = agora.toLocaleDateString('pt-BR');
+        const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        printDataEl.innerText = `Emissão em ${dataStr} às ${horaStr}`;
+      }
+
       const container = document.getElementById('cardsList');
+      const tableBody = document.getElementById('printTableBody');
 
       if (filtradas.length === 0) {
         container.innerHTML = `
@@ -932,14 +1256,26 @@
             <p style="margin-top:4px;">Não constam registos para o dia ${dataFormatada}.</p>
           </div>
         `;
+        if (tableBody) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 16px; color: #64748b; font-style: italic;">
+                Nenhuma solicitação ou ocorrência agendada para ${dataFormatada}.
+              </td>
+            </tr>
+          `;
+        }
         return;
       }
 
       let htmlCards = '';
+      let htmlTable = '';
+
       filtradas.forEach(ev => {
         const temArquivo = ev.arquivo && ev.arquivo.startsWith('http');
         const tag = (ev.data.toUpperCase() === 'TODO DIA') ? 'Ordem Diária' : 'Cartão Programa';
 
+        // Cartão para exibição na tela
         htmlCards += `
           <div class="card-item">
             <div class="card-header">
@@ -965,9 +1301,59 @@
             ` : ''}
           </div>
         `;
+
+        // Linha comprimida para folha A4 e Modo Lista
+        htmlTable += `
+          <tr>
+            <td style="text-align: center; font-weight: 800; white-space: nowrap;">
+              <span class="badge-compact-hora">${ev.hora || '--:--'}</span>
+            </td>
+            <td style="text-align: center;">
+              <span class="badge-compact-tipo">${tag}</span>
+            </td>
+            <td>
+              <strong style="color: #0f172a;">${ev.mensagem || 'SEM DESCRIÇÃO'}</strong>
+              ${temArquivo ? `
+                <div class="btn-anexo-print" style="margin-top: 3px;">
+                  <a href="${ev.arquivo}" target="_blank" style="font-size: 0.72rem; color: #166534; font-weight: 600; text-decoration: underline;">
+                    📎 Abrir Documento
+                  </a>
+                </div>
+              ` : ''}
+            </td>
+            <td>
+              ${ev.atividade || '-'}
+            </td>
+          </tr>
+        `;
       });
 
       container.innerHTML = htmlCards;
+      if (tableBody) {
+        tableBody.innerHTML = htmlTable;
+      }
+    }
+
+    let modoListaAtivo = false;
+    function alternarModoVisualizacao() {
+      modoListaAtivo = !modoListaAtivo;
+      const cardsEl = document.getElementById('cardsList');
+      const tableEl = document.getElementById('tableViewContainer');
+      const btnToggle = document.getElementById('btnToggleModo');
+
+      if (modoListaAtivo) {
+        cardsEl.style.display = 'none';
+        tableEl.style.display = 'block';
+        btnToggle.innerText = '🗂️ Ver em Cartões';
+      } else {
+        cardsEl.style.display = 'grid';
+        tableEl.style.display = 'none';
+        btnToggle.innerText = '📋 Ver em Lista';
+      }
+    }
+
+    function imprimirEscala() {
+      window.print();
     }
   </script>
 </body>

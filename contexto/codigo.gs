@@ -382,6 +382,51 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// ================= FUNÇÃO DE DIAGNÓSTICO DO GOOGLE GROUPS =================
+// Execute esta função diretamente pelo botão 'Executar' do Apps Script para ver o log exato
+function testarDiagnosticoGrupo() {
+  var emailGrupo = EMAIL_GOOGLE_GROUP;
+  var emailExecutando = Session.getActiveUser().getEmail();
+  
+  Logger.log("--- INÍCIO DO DIAGNÓSTICO ---");
+  Logger.log("1. Conta Google executando o script: " + emailExecutando);
+  Logger.log("2. Grupo sendo consultado: " + emailGrupo);
+
+  try {
+    var grupo = GroupsApp.getGroupByEmail(emailGrupo);
+    if (!grupo) {
+      Logger.log("❌ ERRO: GroupsApp retornou NULL!");
+      Logger.log("👉 MOTIVO: A conta '" + emailExecutando + "' NÃO faz parte do grupo '" + emailGrupo + "' (ela precisa ser membro ou proprietária do grupo para poder consultar os participantes).");
+      return;
+    }
+
+    Logger.log("✅ SUCESSO: Grupo '" + emailGrupo + "' localizado!");
+
+    // Testa se a própria conta é reconhecida como membro
+    var souMembro = grupo.hasUser(emailExecutando);
+    Logger.log("3. A conta executora é reconhecida no grupo? " + (souMembro ? "SIM" : "NÃO"));
+
+    // Tenta obter a lista de membros
+    try {
+      var usuarios = grupo.getUsers();
+      Logger.log("4. Quantidade de membros visíveis: " + (usuarios ? usuarios.length : 0));
+      if (usuarios && usuarios.length > 0) {
+        Logger.log("Primeiros membros visíveis:");
+        for (var i = 0; i < Math.min(usuarios.length, 5); i++) {
+          Logger.log(" - " + usuarios[i].getEmail());
+        }
+      }
+    } catch(errMembros) {
+      Logger.log("⚠️ AVISO ao listar membros: " + errMembros.message);
+      Logger.log("👉 MOTIVO: A configuração 'Quem pode ver os participantes' no Google Groups ainda está restrita para proprietários/gerentes.");
+    }
+
+  } catch(e) {
+    Logger.log("❌ EXCEÇÃO GERAL: " + e.message);
+  }
+  Logger.log("--- FIM DO DIAGNÓSTICO ---");
+}
+
 // Função para ler o HTML direto do Google Drive (evita ter que reimplantar a cada alteração visual)
 function lerArquivoDoDrive(nomeArquivo) {
   var arquivos = DriveApp.getFilesByName(nomeArquivo);
