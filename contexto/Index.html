@@ -93,34 +93,54 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
 
-    /* Barra de Usuário Autenticado no Cabeçalho */
+    /* Rodapé Oficial da Aplicação Web */
+    .app-footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #1e293b;
+    }
+
+    .app-footer-brand {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      font-size: 0.74rem;
+    }
+
+    /* Barra de Usuário Autenticado no Rodapé */
     .auth-user-bar {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      margin-top: 14px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 9999px;
-      padding: 4px 14px;
-      font-size: 0.76rem;
-      color: #cbd5e1;
+      padding: 5px 14px;
+      font-size: 0.78rem;
+      color: #f1f5f9;
     }
 
     .btn-logout {
       background: rgba(239, 68, 68, 0.25);
       border: 1px solid rgba(239, 68, 68, 0.5);
       color: #fca5a5;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: 9999px;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .btn-logout:hover {
-      background: rgba(239, 68, 68, 0.5);
+      background: rgba(239, 68, 68, 0.6);
       color: #ffffff;
     }
 
@@ -646,6 +666,7 @@
       .btn-nav,
       .btn-print-action,
       .btn-view-toggle,
+      .app-footer,
       .auth-user-bar,
       .auth-box,
       .loading-spinner,
@@ -653,12 +674,13 @@
         display: none !important;
       }
 
-      /* Força a exibição da tabela compacta */
+      /* Força a exibição da tabela compacta sem borda externa (evita corte no rodapé) */
       .table-view-container {
         display: block !important;
-        border: 1px solid #475569 !important;
+        border: none !important;
         border-radius: 0 !important;
-        margin-top: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
 
       /* Exibe o cabeçalho impresso com o Brasão e identificação oficial */
@@ -708,6 +730,7 @@
         width: 100% !important;
         border-collapse: collapse !important;
         font-size: 7.8pt !important;
+        margin-bottom: 0 !important;
       }
 
       .compact-table th {
@@ -743,26 +766,39 @@
         display: none !important;
       }
 
-      /* Rodapé com assinatura para a impressão */
+      /* Rodapé com assinatura para a impressão: espaço amplo para assinar sem linhas cortando */
       .print-footer-sheet {
         display: flex !important;
         justify-content: space-between;
         align-items: flex-end;
-        margin-top: 14px;
-        padding-top: 6px;
+        margin-top: 45px !important;
+        padding-top: 0 !important;
+        font-size: 7.2pt;
+        color: #1e293b;
+        border-top: none !important;
+      }
+
+      .print-footer-meta {
         font-size: 7pt;
-        color: #334155;
-        border-top: 1px solid #94a3b8;
+        line-height: 1.45;
+        color: #1e293b;
       }
 
       .print-signature-box {
         text-align: center;
-        width: 220px;
+        width: 250px;
       }
 
       .print-signature-line {
-        border-top: 1px solid #000000;
-        margin-bottom: 3px;
+        border-top: 1.5px solid #000000 !important;
+        margin-bottom: 5px !important;
+      }
+
+      .print-signature-title {
+        font-size: 7.5pt !important;
+        font-weight: 700 !important;
+        color: #000000 !important;
+        text-transform: uppercase !important;
       }
     }
   </style>
@@ -782,8 +818,6 @@
         <span>🛡️</span>
         <span id="textoOperacoes">Operações vigentes: Cartão Programa & Policiamento Ostensivo</span>
       </div>
-      <!-- Barra do Usuário Logado -->
-      <div id="authUserInfo" class="auth-user-bar" style="display: none;"></div>
     </div>
 
     <!-- Conteúdo Principal -->
@@ -905,12 +939,13 @@
 
           <!-- Rodapé Exclusivo para Impressão -->
           <div class="print-footer-sheet">
-            <div>
-              <span id="printDataEmissao"></span> • 14ª CIPM
+            <div class="print-footer-meta">
+              <div><span id="printDataEmissao"></span> • 14ª CIPM / CPA-1</div>
+              <div id="printUsuarioEmissor" style="margin-top: 3px; font-weight: 700; color: #000000;"></div>
             </div>
             <div class="print-signature-box">
               <div class="print-signature-line"></div>
-              <span>Oficial / Graduado de Dia</span>
+              <div class="print-signature-title">Oficial / Graduado de Dia</div>
             </div>
           </div>
         </div>
@@ -918,6 +953,14 @@
       </div>
 
     </div>
+
+    <!-- Rodapé Oficial da Aplicação Web -->
+    <footer class="app-footer">
+      <div class="app-footer-brand">
+        POLÍCIA MILITAR DE MATO GROSSO DO SUL • 14ª CIPM / CPA-1
+      </div>
+      <div id="authUserInfo" class="auth-user-bar" style="display: none;"></div>
+    </footer>
   </div>
 
   <script>
@@ -1244,6 +1287,16 @@
         const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         printDataEl.innerText = `Emissão em ${dataStr} às ${horaStr}`;
       }
+      const printUserEl = document.getElementById('printUsuarioEmissor');
+      if (printUserEl) {
+        const email = localStorage.getItem('pmms_user_email') || '';
+        const nome = localStorage.getItem('pmms_user_name') || '';
+        if (email) {
+          printUserEl.innerText = (nome && nome !== email) ? `Impresso por: ${nome} (${email})` : `Impresso por: ${email}`;
+        } else {
+          printUserEl.innerText = '';
+        }
+      }
 
       const container = document.getElementById('cardsList');
       const tableBody = document.getElementById('printTableBody');
@@ -1353,6 +1406,21 @@
     }
 
     function imprimirEscala() {
+      const printDataEl = document.getElementById('printDataEmissao');
+      if (printDataEl) {
+        const agora = new Date();
+        const dataStr = agora.toLocaleDateString('pt-BR');
+        const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        printDataEl.innerText = `Emissão em ${dataStr} às ${horaStr}`;
+      }
+      const printUserEl = document.getElementById('printUsuarioEmissor');
+      if (printUserEl) {
+        const email = localStorage.getItem('pmms_user_email') || '';
+        const nome = localStorage.getItem('pmms_user_name') || '';
+        if (email) {
+          printUserEl.innerText = (nome && nome !== email) ? `Impresso por: ${nome} (${email})` : `Impresso por: ${email}`;
+        }
+      }
       window.print();
     }
   </script>
