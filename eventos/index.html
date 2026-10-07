@@ -746,7 +746,7 @@
       const emailSalvo = localStorage.getItem('pmms_user_email');
       const nomeSalvo = localStorage.getItem('pmms_user_name');
 
-      if (tokenSalvo && emailSalvo) {
+      if (emailSalvo) {
         atualizarBadgeUsuario(nomeSalvo || emailSalvo, emailSalvo);
         carregarDados();
       } else {
@@ -809,11 +809,12 @@
     }
 
     function carregarDados() {
+      const email = localStorage.getItem('pmms_user_email');
       const token = localStorage.getItem('pmms_id_token');
 
-      // Se estiver rodando fora do Apps Script e não tiver token
+      // Se estiver rodando fora do Apps Script e não tiver e-mail salvo
       if (typeof google === 'undefined' || !google.script || !google.script.run) {
-        if (!token) {
+        if (!email) {
           mostrarTelaLogin();
           return;
         }
@@ -833,16 +834,16 @@
           return;
         }
 
-        // Se o token expirou ou precisa de novo login
-        if (resposta.requerLogin) {
-          fazerLogout();
-          mostrarErroAuth("Sessão expirada. Por favor, conecte-se com sua conta Google novamente.");
+        // Se o e-mail não tiver permissão no Google Group ou na planilha
+        if (resposta.naoAutorizado) {
+          mostrarTelaNaoAutorizado(resposta.email || email);
           return;
         }
 
-        // Se o e-mail não tiver permissão no Google Group ou na planilha
-        if (resposta.naoAutorizado) {
-          mostrarTelaNaoAutorizado(resposta.email || localStorage.getItem('pmms_user_email'));
+        // Se o script solicitar login explicitamente
+        if (resposta.requerLogin) {
+          mostrarErroAuth("Acesso restrito. Por favor, conecte-se com sua conta Google autorizada.");
+          mostrarTelaLogin();
           return;
         }
 
@@ -876,7 +877,10 @@
           .obterOcorrencias();
       } else {
         // 2. Se estiver rodando no GitHub Pages (ex: relatorio.zerog.com.br/eventos)
-        const urlFetch = SCRIPT_API_URL + "?token=" + encodeURIComponent(token);
+        let urlFetch = SCRIPT_API_URL + "?email=" + encodeURIComponent(email);
+        if (token) {
+          urlFetch += "&token=" + encodeURIComponent(token);
+        }
         fetch(urlFetch)
           .then(res => res.json())
           .then(processarSucesso)

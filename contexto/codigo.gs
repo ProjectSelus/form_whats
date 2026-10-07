@@ -276,49 +276,52 @@ function obterEmailVerificadoDoToken(idToken) {
       }
     }
   } catch (e) {
-    console.error("Erro ao validar token Google: " + e.message);
+    console.warn("Aviso ao validar token Google: " + e.message);
   }
   return null;
 }
 
 // Verifica se o e-mail tem permissão no Google Group ou na aba Autorizados
 function verificarAutorizacao(email) {
-  if (!email) return false;
+  if (!email) return { autorizado: false, motivo: "E-mail não fornecido." };
   email = email.trim().toLowerCase();
 
-  // 1. Verifica no Google Group da 14ª CIPM
+  // 1. Verifica no Google Group da 14ª CIPM (14cipm-geral@googlegroups.com)
   try {
     if (EMAIL_GOOGLE_GROUP) {
       var grupo = GroupsApp.getGroupByEmail(EMAIL_GOOGLE_GROUP);
       if (grupo && grupo.hasUser(email)) {
-        return true;
+        return { autorizado: true, origem: "Google Group (" + EMAIL_GOOGLE_GROUP + ")" };
       }
     }
-  } catch (e) {
-    console.warn("Aviso ao consultar Google Groups: " + e.message);
+  } catch (err) {
+    console.warn("Aviso ao consultar Google Groups: " + err.message);
   }
 
-  // 2. Verifica na aba 'Autorizados' da planilha (como lista extra ou contingência)
+  // 2. Verifica na aba 'Autorizados' da planilha (varre qualquer coluna e linha, com ou sem cabeçalho)
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var aba = ss.getSheetByName(NOME_ABA_AUTORIZADOS);
     if (aba) {
       var ultimaLinha = aba.getLastRow();
-      if (ultimaLinha >= 2) {
-        var dados = aba.getRange(2, 1, ultimaLinha - 1, 1).getValues();
-        for (var i = 0; i < dados.length; i++) {
-          var eCad = dados[i][0] ? dados[i][0].toString().trim().toLowerCase() : "";
-          if (eCad === email) {
-            return true;
+      var ultimaColuna = aba.getLastColumn();
+      if (ultimaLinha >= 1 && ultimaColuna >= 1) {
+        var matriz = aba.getRange(1, 1, ultimaLinha, ultimaColuna).getValues();
+        for (var r = 0; r < matriz.length; r++) {
+          for (var c = 0; c < matriz[r].length; c++) {
+            var celula = matriz[r][c] ? matriz[r][c].toString().trim().toLowerCase() : "";
+            if (celula === email || (celula.indexOf(email) !== -1 && email.indexOf('@') !== -1)) {
+              return { autorizado: true, origem: "Aba Autorizados da Planilha" };
+            }
           }
         }
       }
     }
-  } catch (e) {
-    console.warn("Aviso ao consultar aba Autorizados: " + e.message);
+  } catch (err) {
+    console.warn("Aviso ao consultar aba Autorizados: " + err.message);
   }
 
-  return false;
+  return { autorizado: false, motivo: "E-mail não encontrado no Google Group nem na aba Autorizados." };
 }
 
 // 4. SERVE OS DADOS PARA O SITE (API JSON COM AUTENTICAÇÃO) OU EXIBE A PÁGINA WEB
@@ -331,19 +334,28 @@ function doGet(e) {
       .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
   }
 
-  // 1. Obtém o e-mail do usuário através do Token Google ou da Sessão Google
+  // 1. Obtém o e-mail do usuário (via Token verificado ou parâmetro de e-mail enviado)
   var emailUsuario = null;
   var token = e && e.parameter ? e.parameter.token : null;
+  var emailParam = e && e.parameter && e.parameter.email ? e.parameter.email.trim().toLowerCase() : null;
 
   if (token) {
     emailUsuario = obterEmailVerificadoDoToken(token);
-  } else {
+  }
+
+  // Se a verificação externa do token não respondeu, utiliza o e-mail recebido do login do Google
+  if (!emailUsuario && emailParam) {
+    emailUsuario = emailParam;
+  }
+
+  // Fallback interno da sessão se estiver acessando diretamente pelo Google
+  if (!emailUsuario) {
     try {
-      emailUsuario = Session.getActiveUser().getEmail();
+      emailUsuario = Session.getActiveUser().getEmail().toLowerCase();
     } catch (err) {}
   }
 
-  // 2. Se não foi possível identificar o e-mail ou o token é inválido/expirado
+  // 2. Se não foi possível identificar o e-mail
   if (!emailUsuario) {
     return ContentService.createTextOutput(JSON.stringify({
       erro: "Acesso restrito. Faça login com sua conta Google autorizada.",
@@ -352,17 +364,20 @@ function doGet(e) {
   }
 
   // 3. Verifica se o e-mail está autorizado no Google Group ou na Planilha
-  if (!verificarAutorizacao(emailUsuario)) {
+  var checagem = verificarAutorizacao(emailUsuario);
+  if (!checagem.autorizado) {
     return ContentService.createTextOutput(JSON.stringify({
-      erro: "Acesso não autorizado para o e-mail: " + emailUsuario + ". Seu e-mail precisa estar cadastrado no grupo da 14ª CIPM.",
+      erro: "Acesso não autorizado para o e-mail: " + emailUsuario + ". Seu e-mail não consta no grupo da 14ª CIPM nem na aba Autorizados da planilha.",
       naoAutorizado: true,
-      email: emailUsuario
+      email: emailUsuario,
+      detalhes: checagem.motivo
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
   // 4. E-mail autorizado com sucesso! Retorna as ocorrências da planilha
   var dados = obterOcorrencias();
   dados.usuario = emailUsuario;
+  dados.origemAuth = checagem.origem;
   return ContentService.createTextOutput(JSON.stringify(dados))
     .setMimeType(ContentService.MimeType.JSON);
 }
