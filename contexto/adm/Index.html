@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>PMMS - 14ª CIPM | Painel de Configurações (ADM)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="../../Brasão_PMMS.PNG">
+  
+  <!-- Google Identity Services (GIS) para login seguro -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    :root {
+      --cor-fundo: #f4f6f8;
+      --cor-topo: #0c1a2d;
+      --cor-destaque: #1b4332;
+      --cor-texto: #1e293b;
+      --cor-texto-suave: #64748b;
+      --cor-borda: #cbd5e1;
+      --cor-sucesso: #16a34a;
+      --cor-erro: #dc2626;
+      --cor-aviso: #ca8a04;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+      min-height: 100vh;
+    }
+
+    .app-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 860px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      border: 1px solid var(--cor-borda);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topo Institucional PMMS */
+    .header-banner {
+      background: linear-gradient(135deg, #0c1a2d 0%, #172554 100%);
+      color: #ffffff;
+      padding: 24px 20px;
+      text-align: center;
+      position: relative;
+      border-bottom: 3px solid #b91c1c;
+    }
+
+    .brasao-pmms {
+      width: 60px;
+      height: auto;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    }
+
+    .header-sub {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #93c5fd;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+    }
+
+    .header-desc {
+      font-size: 0.85rem;
+      color: #e2e8f0;
+    }
+
+    /* Conteúdo */
+    .content-area {
+      padding: 24px;
+      flex-grow: 1;
+    }
+
+    /* Bloco de Autenticação */
+    .auth-box {
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .auth-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .auth-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--cor-topo);
+      margin-bottom: 8px;
+    }
+
+    .auth-desc {
+      font-size: 0.9rem;
+      color: var(--cor-texto-suave);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .auth-btn-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .auth-error-box {
+      background: #fef2f2;
+      border: 1.5px solid #f87171;
+      border-radius: 8px;
+      color: #991b1b;
+      padding: 16px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .btn-action-alt {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #334155;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-action-alt:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    /* Barra Superior do Admin Logado */
+    .admin-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .admin-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: #0f172a;
+    }
+
+    .admin-badge {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+
+    /* Notificação Toast */
+    .toast-msg {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      border-left: 4px solid var(--cor-sucesso);
+      animation: toastSurgir 0.25s ease-out;
+    }
+
+    @keyframes toastSurgir {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Seções de Configuração */
+    .config-section {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .config-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .config-desc {
+      font-size: 0.82rem;
+      color: var(--cor-texto-suave);
+      margin-bottom: 16px;
+      line-height: 1.45;
+    }
+
+    /* Grelha de Tons de Som */
+    .sons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .som-card {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 14px;
+      background: #f8fafc;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .som-card:hover {
+      border-color: #94a3b8;
+      background: #ffffff;
+    }
+
+    .som-card.ativo {
+      border-color: #1e3a8a;
+      background: #eff6ff;
+      box-shadow: 0 0 0 2px #3b82f6;
+    }
+
+    .som-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .som-card-nome {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .som-card-status {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .som-card.ativo .som-card-status {
+      background: #1e40af;
+      color: #ffffff;
+    }
+
+    .som-card-detalhe {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-bottom: 12px;
+      line-height: 1.35;
+      flex-grow: 1;
+    }
+
+    .som-card-acoes {
+      display: flex;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    .btn-testar-som {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: background 0.15s;
+    }
+
+    .btn-testar-som:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-ativar-som {
+      background: #0f172a;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      flex: 1.2;
+      transition: background 0.15s;
+    }
+
+    .btn-ativar-som:hover {
+      background: #1e293b;
+    }
+
+    .som-card.ativo .btn-ativar-som {
+      background: #16a34a;
+      cursor: default;
+    }
+
+    /* Seletor de Minutos de Antecedência */
+    .antecedencia-opcoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-antecedencia {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-antecedencia:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .btn-antecedencia.ativo {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #ffffff;
+    }
+
+    /* Switch de Opções */
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .switch-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .switch-desc {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .checkbox-custom {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    /* Botão de Teste Completo */
+    .btn-simular-full {
+      background: #dc2626;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+      transition: background 0.15s;
+    }
+
+    .btn-simular-full:hover {
+      background: #b91c1c;
+    }
+
+    /* Rodapé */
+    .app-footer {
+      background: #0c1a2d;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      padding: 16px 20px;
+      text-align: center;
+      border-top: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .app-footer a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mensagem Toast Flutuante -->
+  <div id="toastMsg" class="toast-msg">
+    <span>✅</span>
+    <span id="toastTexto">Configuração salva com sucesso!</span>
+  </div>
+
+  <div class="app-card">
+    
+    <!-- Topo Institucional Oficial PMMS -->
+    <div class="header-banner">
+      <img src="../../Brasão_PMMS.PNG" 
+           alt="Brasão PMMS" 
+           class="brasao-pmms"
+           onerror="if(this.src!=='https://raw.githubusercontent.com/ProjectSelus/form_whats/main/Bras%C3%A3o_PMMS.PNG'){this.src='https://raw.githubusercontent.com/ProjectSelus/form_whats/main/Bras%C3%A3o_PMMS.PNG'}else{this.src='https://commons.wikimedia.org/wiki/Special:FilePath/Bras%C3%A3o_PMMS.PNG'}">
+      <div class="header-sub">POLÍCIA MILITAR DE MATO GROSSO DO SUL • 14ª CIPM / CPA-1</div>
+      <h1 class="header-title">PAINEL DE CONFIGURAÇÕES OPERACIONAIS</h1>
+      <p class="header-desc">Administração de alertas sonoros, tempos e preferências do sistema</p>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="content-area">
+
+      <!-- Bloco de Autenticação / Controle de Acesso -->
+      <div id="authSection" class="auth-box">
+        <div class="auth-icon" id="authIcon">🔒</div>
+        <h2 class="auth-title" id="authTitle">Acesso Restrito à Administração</h2>
+        <p class="auth-desc" id="authDesc">
+          Para acessar as configurações operacionais, autentique-se com sua conta Google autorizada.
+        </p>
+
+        <!-- Caixa de erro / Acesso Negado -->
+        <div id="authErrorBox" class="auth-error-box" style="display: none;"></div>
+
+        <!-- Botão Oficial Google Identity -->
+        <div class="auth-btn-container" id="googleBtnWrapper">
+          <div id="g_id_onload"
+               data-client_id="81878847414-f2lt8p7fbkjkh46julqdgfuhfcvau22o.apps.googleusercontent.com"
+               data-callback="handleCredentialResponse"
+               data-auto_prompt="true">
+          </div>
+          <div class="g_id_signin"
+               data-type="standard"
+               data-size="large"
+               data-theme="outline"
+               data-text="sign_in_with"
+               data-shape="rectangular"
+               data-logo_alignment="left">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 12px;">
+          <button id="btnTrocarConta" class="btn-action-alt" style="display: none;" onclick="fazerLogout()">
+            🔄 Trocar Conta Google
+          </button>
+          <a href="../" class="btn-action-alt">
+            ⬅️ Voltar para a Escala Operacional
+          </a>
+        </div>
+      </div>
+
+      <!-- Bloco de Configurações (Apenas para actiber@gmail.com) -->
+      <div id="adminPanelSection" style="display: none;">
+        
+        <!-- Barra de Identificação do Administrador -->
+        <div class="admin-bar">
+          <div class="admin-user-info">
+            <span class="admin-badge">ADMIN</span>
+            <span id="txtAdminIdentidade"><strong>Conta:</strong> actiber@gmail.com</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <a href="../" class="btn-action-alt">⬅️ Ir para Escala</a>
+            <button class="btn-action-alt" onclick="fazerLogout()">Sair</button>
+          </div>
+        </div>
+
+        <!-- 1. Configuração do Tom de Alarme -->
+        <div class="config-section">
+          <h2 class="config-title">🔔 Tom do Alarme das Solicitações de Serviço (SS)</h2>
+          <p class="config-desc">
+            Escolha o padrão sonoro que será emitido quando faltar o tempo configurado para a SS do dia. Você pode testar cada opção antes de ativar:
+          </p>
+
+          <div class="sons-grid">
+            
+            <!-- Chime Suave -->
+            <div class="som-card" id="cardSom-chime">
+              <div class="som-card-header">
+                <span class="som-card-nome">✨ Chime Suave</span>
+                <span class="som-card-status" id="badgeSom-chime">Padrão</span>
+              </div>
+              <p class="som-card-detalhe">
+                Três notas harmônicas musicais ascendentes (Ré &rarr; Fá# &rarr; Lá). Tom sereno, polido e não agressivo.
+              </p>
+              <div class="som-card-acoes">
+                <button type="button" class="btn-testar-som" onclick="testarTom('chime')">▶️ Ouvir</button>
+                <button type="button" class="btn-ativar-som" onclick="definirTom('chime')">Ativar</button>
+              </div>
+            </div>
+
+            <!-- Rádio COPOM -->
+            <div class="som-card" id="cardSom-copom">
+              <div class="som-card-header">
+                <span class="som-card-nome">📻 Rádio COPOM</span>
+                <span class="som-card-status" id="badgeSom-copom">Alternativo</span>
+              </div>
+              <p class="som-card-detalhe">
+                Bip duplo característico de rádio comunicador policial / walkie-talkie (880 Hz e 1100 Hz).
+              </p>
+              <div class="som-card-acoes">
+                <button type="button" class="btn-testar-som" onclick="testarTom('copom')">▶️ Ouvir</button>
+                <button type="button" class="btn-ativar-som" onclick="definirTom('copom')">Ativar</button>
+              </div>
+            </div>
+
+            <!-- Pager Digital -->
+            <div class="som-card" id="cardSom-pager">
+              <div class="som-card-header">
+                <span class="som-card-nome">📟 Pager Digital</span>
+                <span class="som-card-status" id="badgeSom-pager">Alternativo</span>
+              </div>
+              <p class="som-card-detalhe">
+                4 bips rápidos e discretos no estilo relógio eletrônico de quartzo (1760 Hz).
+              </p>
+              <div class="som-card-acoes">
+                <button type="button" class="btn-testar-som" onclick="testarTom('pager')">▶️ Ouvir</button>
+                <button type="button" class="btn-ativar-som" onclick="definirTom('pager')">Ativar</button>
+              </div>
+            </div>
+
+            <!-- Ding-Dong -->
+            <div class="som-card" id="cardSom-dingdong">
+              <div class="som-card-header">
+                <span class="som-card-nome">🔔 Ding-Dong</span>
+                <span class="som-card-status" id="badgeSom-dingdong">Alternativo</span>
+              </div>
+              <p class="som-card-detalhe">
+                Dois acordes harmônicos suaves estilo aviso institucional de aeroporto (660 Hz &rarr; 523 Hz).
+              </p>
+              <div class="som-card-acoes">
+                <button type="button" class="btn-testar-som" onclick="testarTom('dingdong')">▶️ Ouvir</button>
+                <button type="button" class="btn-ativar-som" onclick="definirTom('dingdong')">Ativar</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 2. Configuração do Tempo de Antecedência -->
+        <div class="config-section">
+          <h2 class="config-title">⏰ Tempo de Antecedência do Alarme</h2>
+          <p class="config-desc">
+            Define com quantos minutos de antecedência exatos o alarme deve tocar antes do horário da Solicitação de Serviço:
+          </p>
+          <div class="antecedencia-opcoes">
+            <button type="button" class="btn-antecedencia" id="btnAnte-20" onclick="definirAntecedencia(20)">
+              ⏰ 20 Minutos (Padrão 14ª CIPM)
+            </button>
+            <button type="button" class="btn-antecedencia" id="btnAnte-15" onclick="definirAntecedencia(15)">
+              ⏰ 15 Minutos
+            </button>
+            <button type="button" class="btn-antecedencia" id="btnAnte-10" onclick="definirAntecedencia(10)">
+              ⏰ 10 Minutos
+            </button>
+            <button type="button" class="btn-antecedencia" id="btnAnte-30" onclick="definirAntecedencia(30)">
+              ⏰ 30 Minutos
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Preferências de Interface na Tela Principal -->
+        <div class="config-section">
+          <h2 class="config-title">🛠️ Preferências de Interface na Escala Principal</h2>
+          <p class="config-desc">
+            Controle a exibição de atalhos e botões auxiliares na barra de navegação da escala principal:
+          </p>
+
+          <div class="switch-row">
+            <div>
+              <div class="switch-label">Exibir botões "Atualizar" e "Testar Alarme" no cabeçalho</div>
+              <div class="switch-desc">Quando desmarcado, apenas o botão "Imprimir Lista" fica visível para um visual mais limpo.</div>
+            </div>
+            <input type="checkbox" id="chkExibirBotoesTeste" class="checkbox-custom" onchange="salvarPreferenciaBotoes(this.checked)">
+          </div>
+        </div>
+
+        <!-- 4. Simulação Completa do Alarme Operacional -->
+        <div class="config-section">
+          <h2 class="config-title">🚨 Teste e Simulação do Alarme</h2>
+          <p class="config-desc">
+            Dispare um teste completo do alarme agora mesmo para validar a sincronia do som ativo com a janela de aviso:
+          </p>
+          <button type="button" class="btn-simular-full" onclick="executarSimulacaoAlarme()">
+            🚨 Disparar Alarme de Teste
+          </button>
+        </div>
+
+        <!-- 5. Histórico e Reset de Alarmes do Dia -->
+        <div class="config-section">
+          <h2 class="config-title">📋 Registro de Alarmes de Hoje</h2>
+          <p class="config-desc">
+            O sistema registra os alarmes já disparados hoje para evitar repetições desnecessárias. Caso queira que os eventos voltem a apitar durante seus testes, clique no botão abaixo:
+          </p>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn-action-alt" onclick="resetarAlarmesHoje()">
+              🗑️ Limpar Registro de Alarmes de Hoje
+            </button>
+            <span id="txtQtdAlarmesHoje" style="font-size: 0.85rem; color: #64748b;"></span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Rodapé Oficial -->
+    <footer class="app-footer">
+      <div>POLÍCIA MILITAR DE MATO GROSSO DO SUL • 14ª CIPM / CPA-1</div>
+      <div><a href="../">Ir para Escala Operacional &rarr;</a></div>
+    </footer>
+
+  </div>
+
+  <script>
+    const EMAIL_ADMIN_AUTORIZADO = "actiber@gmail.com";
+    let audioCtx = null;
+
+    // Inicialização do AudioContext
+    function obterAudioContext() {
+      if (!audioCtx) {
+        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtxClass) audioCtx = new AudioCtxClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Helper gerador de tom senoidal suave
+    function emitirTomSenoidal(ctx, freq, inicioRel, duracao, volumeMax = 0.28) {
+      try {
+        const t0 = ctx.currentTime + inicioRel;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t0);
+
+        gain.gain.setValueAtTime(0.0001, t0);
+        gain.gain.linearRampToValueAtTime(volumeMax, t0 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duracao);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(t0);
+        osc.stop(t0 + duracao);
+      } catch (e) {
+        console.warn("Erro ao emitir tom:", e);
+      }
+    }
+
+    // Emissão sonora de demonstração
+    function testarTom(tipo) {
+      const ctx = obterAudioContext();
+      if (!ctx) return;
+
+      if (tipo === 'chime') {
+        emitirTomSenoidal(ctx, 587.33, 0, 0.22, 0.28);
+        emitirTomSenoidal(ctx, 739.99, 0.16, 0.22, 0.28);
+        emitirTomSenoidal(ctx, 880.00, 0.32, 0.48, 0.30);
+      } else if (tipo === 'copom') {
+        emitirTomSenoidal(ctx, 880, 0, 0.11, 0.3);
+        emitirTomSenoidal(ctx, 1100, 0.13, 0.15, 0.3);
+      } else if (tipo === 'pager') {
+        emitirTomSenoidal(ctx, 1760, 0, 0.05, 0.24);
+        emitirTomSenoidal(ctx, 1760, 0.08, 0.05, 0.24);
+        emitirTomSenoidal(ctx, 1760, 0.17, 0.05, 0.24);
+        emitirTomSenoidal(ctx, 1760, 0.25, 0.05, 0.24);
+      } else if (tipo === 'dingdong') {
+        emitirTomSenoidal(ctx, 660, 0, 0.42, 0.32);
+        emitirTomSenoidal(ctx, 523, 0.38, 0.65, 0.32);
+      }
+    }
+
+    function mostrarToast(mensagem) {
+      const t = document.getElementById('toastMsg');
+      const txt = document.getElementById('toastTexto');
+      txt.innerText = mensagem;
+      t.style.display = 'flex';
+      setTimeout(() => {
+        t.style.display = 'none';
+      }, 3000);
+    }
+
+    function definirTom(tipo) {
+      localStorage.setItem('pmms_tipo_som_alarme', tipo);
+      testarTom(tipo);
+      atualizarInterfaceConfiguracoes();
+      mostrarToast(`Tom do alarme alterado para "${obterNomeSom(tipo)}"`);
+    }
+
+    function obterNomeSom(tipo) {
+      const map = {
+        'chime': '✨ Chime Suave',
+        'copom': '📻 Rádio COPOM',
+        'pager': '📟 Pager Digital',
+        'dingdong': '🔔 Ding-Dong'
+      };
+      return map[tipo] || tipo;
+    }
+
+    function definirAntecedencia(minutos) {
+      localStorage.setItem('pmms_antecedencia_minutos', minutos.toString());
+      atualizarInterfaceConfiguracoes();
+      mostrarToast(`Antecedência do alarme definida para ${minutos} minutos.`);
+    }
+
+    function salvarPreferenciaBotoes(ativo) {
+      localStorage.setItem('pmms_exibir_botoes_teste', ativo ? 'true' : 'false');
+      mostrarToast(ativo ? 'Botões reativados na escala principal.' : 'Botões ocultados na escala principal.');
+    }
+
+    function resetarAlarmesHoje() {
+      const hoje = new Date();
+      const d = String(hoje.getDate()).padStart(2, '0');
+      const m = String(hoje.getMonth() + 1).padStart(2, '0');
+      const a = hoje.getFullYear();
+      const chaveHoje = `${d}/${m}/${a}`;
+      localStorage.removeItem('pmms_alarmes_disparados_' + chaveHoje);
+      atualizarQtdAlarmesHoje();
+      mostrarToast('Registro de alarmes de hoje resetado com sucesso!');
+    }
+
+    function atualizarQtdAlarmesHoje() {
+      const hoje = new Date();
+      const d = String(hoje.getDate()).padStart(2, '0');
+      const m = String(hoje.getMonth() + 1).padStart(2, '0');
+      const a = hoje.getFullYear();
+      const chaveHoje = `${d}/${m}/${a}`;
+      try {
+        const item = localStorage.getItem('pmms_alarmes_disparados_' + chaveHoje);
+        const qtd = item ? JSON.parse(item).length : 0;
+        document.getElementById('txtQtdAlarmesHoje').innerText = `(${qtd} alarme(s) registrado(s) hoje)`;
+      } catch (e) {
+        document.getElementById('txtQtdAlarmesHoje').innerText = '(0 alarmes)';
+      }
+    }
+
+    function atualizarInterfaceConfiguracoes() {
+      const somAtivo = localStorage.getItem('pmms_tipo_som_alarme') || 'chime';
+      const sons = ['chime', 'copom', 'pager', 'dingdong'];
+
+      sons.forEach(s => {
+        const card = document.getElementById(`cardSom-${s}`);
+        const badge = document.getElementById(`badgeSom-${s}`);
+        if (card) {
+          const isAtivo = (s === somAtivo);
+          card.classList.toggle('ativo', isAtivo);
+          if (badge) {
+            badge.innerText = isAtivo ? 'Ativo' : (s === 'chime' ? 'Recomendado' : 'Alternativo');
+          }
+        }
+      });
+
+      const anteAtiva = parseInt(localStorage.getItem('pmms_antecedencia_minutos'), 10) || 20;
+      [10, 15, 20, 30].forEach(min => {
+        const btn = document.getElementById(`btnAnte-${min}`);
+        if (btn) {
+          btn.classList.toggle('ativo', min === anteAtiva);
+        }
+      });
+
+      const chk = document.getElementById('chkExibirBotoesTeste');
+      if (chk) {
+        chk.checked = (localStorage.getItem('pmms_exibir_botoes_teste') === 'true');
+      }
+
+      atualizarQtdAlarmesHoje();
+    }
+
+    function executarSimulacaoAlarme() {
+      const somAtivo = localStorage.getItem('pmms_tipo_som_alarme') || 'chime';
+      testarTom(somAtivo);
+      mostrarToast(`Disparo de teste simulado com o som "${obterNomeSom(somAtivo)}"!`);
+    }
+
+    // Autenticação Google
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function handleCredentialResponse(response) {
+      if (!response || !response.credential) return;
+      const payload = parseJwt(response.credential);
+      if (!payload || !payload.email) return;
+
+      localStorage.setItem('pmms_id_token', response.credential);
+      localStorage.setItem('pmms_user_email', payload.email);
+      localStorage.setItem('pmms_user_name', payload.name || payload.email);
+
+      validarPermissaoAdmin(payload.email);
+    }
+
+    function validarPermissaoAdmin(email) {
+      const emailLimpo = (email || '').trim().toLowerCase();
+
+      if (emailLimpo === EMAIL_ADMIN_AUTORIZADO.toLowerCase()) {
+        // Autorizado!
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('adminPanelSection').style.display = 'block';
+        document.getElementById('txtAdminIdentidade').innerHTML = `<strong>Administrador:</strong> ${emailLimpo}`;
+        atualizarInterfaceConfiguracoes();
+      } else {
+        // Não autorizado
+        document.getElementById('authSection').style.display = 'block';
+        document.getElementById('adminPanelSection').style.display = 'none';
+        document.getElementById('authIcon').innerText = '🚫';
+        document.getElementById('authTitle').innerText = 'Acesso Restrito ao Administrador';
+        document.getElementById('authDesc').innerText = 'Identificamos sua conta Google, porém ela não possui permissão administrativa.';
+        
+        const errBox = document.getElementById('authErrorBox');
+        errBox.innerHTML = `
+          <strong>Conta Conectada:</strong> ${emailLimpo}<br>
+          <strong>Status:</strong> Acesso Negado.<br>
+          <span style="font-size:0.8rem; color:#b91c1c; display:block; margin-top:6px;">
+            Este painel é de uso restrito da administração da 14ª CIPM (autorizado para <strong>${EMAIL_ADMIN_AUTORIZADO}</strong>).
+          </span>
+        `;
+        errBox.style.display = 'block';
+        document.getElementById('googleBtnWrapper').style.display = 'none';
+        document.getElementById('btnTrocarConta').style.display = 'inline-flex';
+      }
+    }
+
+    function fazerLogout() {
+      localStorage.removeItem('pmms_id_token');
+      localStorage.removeItem('pmms_user_email');
+      localStorage.removeItem('pmms_user_name');
+      if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+      }
+      location.reload();
+    }
+
+    window.onload = function() {
+      const emailSalvo = localStorage.getItem('pmms_user_email');
+      if (emailSalvo) {
+        validarPermissaoAdmin(emailSalvo);
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1110,8 +1110,9 @@
         <div class="section-label">
           <span>SELEÇÃO DE DIAS</span>
           <div style="display: flex; gap: 8px;">
-            <button class="btn-nav" onclick="carregarDados()">🔄 Atualizar</button>
-            <button class="btn-nav" onclick="testarAlarme()" title="Testar alarme operacional e opções de som">🚨 Testar Alarme</button>
+            <!-- Botões disponíveis e alternáveis na página de configuração /eventos/adm -->
+            <!-- <button class="btn-nav" id="btnAcaoAtualizar" style="display: none;" onclick="carregarDados()">🔄 Atualizar</button> -->
+            <!-- <button class="btn-nav" id="btnAcaoTestar" style="display: none;" onclick="testarAlarme()" title="Testar alarme operacional">🚨 Testar Alarme</button> -->
             <button class="btn-print-action" onclick="imprimirEscala()">🖨️ Imprimir Lista</button>
           </div>
         </div>
@@ -1225,24 +1226,17 @@
           <div class="modal-alarme-ativ" id="modalAlarmeAtividade">Atividade prevista</div>
         </div>
 
-        <!-- Opções de Som do Alarme com teste imediato -->
+        <!-- Seletor de sons gerenciável via painel administrativo em /eventos/adm
         <div class="modal-alarme-som-seletor">
-          <span class="modal-som-label">🔔 Tom do Alarme (toque para ouvir e escolher):</span>
+          <span class="modal-som-label">🔔 Tom do Alarme (gerenciável em /eventos/adm):</span>
           <div class="som-botoes-grid">
-            <button type="button" class="btn-som-opt" id="btnSom-copom" onclick="selecionarTipoSom('copom')">
-              📻 Rádio COPOM
-            </button>
-            <button type="button" class="btn-som-opt" id="btnSom-pager" onclick="selecionarTipoSom('pager')">
-              📟 Pager Digital
-            </button>
-            <button type="button" class="btn-som-opt" id="btnSom-dingdong" onclick="selecionarTipoSom('dingdong')">
-              🔔 Ding-Dong
-            </button>
-            <button type="button" class="btn-som-opt" id="btnSom-chime" onclick="selecionarTipoSom('chime')">
-              ✨ Chime Suave
-            </button>
+            <button type="button" class="btn-som-opt" id="btnSom-copom" onclick="selecionarTipoSom('copom')">📻 Rádio COPOM</button>
+            <button type="button" class="btn-som-opt" id="btnSom-pager" onclick="selecionarTipoSom('pager')">📟 Pager Digital</button>
+            <button type="button" class="btn-som-opt" id="btnSom-dingdong" onclick="selecionarTipoSom('dingdong')">🔔 Ding-Dong</button>
+            <button type="button" class="btn-som-opt" id="btnSom-chime" onclick="selecionarTipoSom('chime')">✨ Chime Suave</button>
           </div>
         </div>
+        -->
       </div>
       <div class="modal-alarme-footer">
         <button type="button" class="btn-alarme-ok" onclick="confirmarAlarme()">
@@ -1379,7 +1373,7 @@
 
     window.onload = function() {
       atualizarRotulosGuias();
-      atualizarBotoesSom();
+      aplicarVisibilidadeBotoes();
 
       const tokenSalvo = localStorage.getItem('pmms_id_token');
       const emailSalvo = localStorage.getItem('pmms_user_email');
@@ -1717,7 +1711,7 @@
     }
 
     // =========================================================================
-    // SISTEMA DE ALARME OPERACIONAL (20 MINUTOS ANTES DA SS)
+    // SISTEMA DE ALARME OPERACIONAL (EXATAMENTE 20 MINUTOS ANTES DA SS)
     // =========================================================================
     let audioCtx = null;
     let alarmeIntervalId = null;
@@ -1725,19 +1719,61 @@
     let alarmeAtualChave = null;
     let titleBlinkInterval = null;
     let originalDocumentTitle = document.title || "PMMS - 14ª CIPM | Solicitações de Serviços (SS)";
-    let alarmesConfirmados = new Set();
-    let tipoSomAlarme = localStorage.getItem('pmms_tipo_som_alarme') || 'copom';
+    
+    // Configurações do Sistema (Gerenciáveis via /eventos/adm)
+    // Padrão definido para Chime Suave e 20 minutos de antecedência
+    let tipoSomAlarme = localStorage.getItem('pmms_tipo_som_alarme') || 'chime';
+    let antecedenciaAlarme = parseInt(localStorage.getItem('pmms_antecedencia_minutos'), 10) || 20;
 
-    try {
-      const salvos = sessionStorage.getItem('pmms_alarmes_confirmados');
-      if (salvos) {
-        alarmesConfirmados = new Set(JSON.parse(salvos));
+    // Sincroniza em tempo real caso as configurações sejam alteradas em outra aba (/eventos/adm)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'pmms_tipo_som_alarme' && e.newValue) {
+        tipoSomAlarme = e.newValue;
       }
-    } catch (e) {}
+      if (e.key === 'pmms_antecedencia_minutos' && e.newValue) {
+        antecedenciaAlarme = parseInt(e.newValue, 10) || 20;
+      }
+      if (e.key === 'pmms_exibir_botoes_teste') {
+        aplicarVisibilidadeBotoes();
+      }
+    });
 
-    function gerarChaveOcorrencia(ev) {
+    function aplicarVisibilidadeBotoes() {
+      const exibir = localStorage.getItem('pmms_exibir_botoes_teste') === 'true';
+      const b1 = document.getElementById('btnAcaoAtualizar');
+      const b2 = document.getElementById('btnAcaoTestar');
+      if (b1) b1.style.display = exibir ? 'inline-block' : 'none';
+      if (b2) b2.style.display = exibir ? 'inline-block' : 'none';
+    }
+
+    // Controle de alarmes disparados por data no localStorage para nunca repetir no mesmo dia
+    function obterChaveDiaHoje() {
+      return formatarDataBR(new Date());
+    }
+
+    function obterAlarmesDisparadosHoje() {
+      try {
+        const item = localStorage.getItem('pmms_alarmes_disparados_' + obterChaveDiaHoje());
+        return item ? new Set(JSON.parse(item)) : new Set();
+      } catch (e) {
+        return new Set();
+      }
+    }
+
+    function registrarAlarmeDisparadoHoje(chave) {
+      try {
+        const conjunto = obterAlarmesDisparadosHoje();
+        conjunto.add(chave);
+        localStorage.setItem('pmms_alarmes_disparados_' + obterChaveDiaHoje(), JSON.stringify(Array.from(conjunto)));
+      } catch (e) {}
+    }
+
+    function gerarChaveAlarme(ev, minutosRef) {
       if (!ev) return '';
-      return `${normalizarData(ev.data)}_${(ev.hora || '').trim()}_${(ev.mensagem || '').trim()}`.replace(/\s+/g, '_');
+      const dataStr = normalizarData(ev.data) || formatarDataBR(new Date());
+      const horaStr = (ev.hora || '').trim();
+      const msgStr = (ev.mensagem || '').trim();
+      return `ss_${dataStr}_${horaStr}_${minutosRef}m_${msgStr}`.replace(/\s+/g, '_');
     }
 
     function obterAudioContext() {
@@ -1778,56 +1814,35 @@
       }
     }
 
-    // Emissão dos 4 padrões sonoros distintos
+    // Emissão dos padrões sonoros (Padrão: Chime Suave)
     function tocarPadraoSom(tipo) {
       const ctx = obterAudioContext();
       if (!ctx) return;
 
-      if (tipo === 'copom') {
-        // Opção 1: Rádio COPOM / HT (bip duplo de rádio comunicador: 880Hz e 1100Hz)
+      const somAtivo = tipo || tipoSomAlarme || 'chime';
+
+      if (somAtivo === 'chime') {
+        // Padrão Oficial: Chime Harmônico Suave (3 notas musicais ascendentes: D5 587Hz -> F#5 740Hz -> A5 880Hz)
+        emitirTomSenoidal(ctx, 587.33, 0, 0.22, 0.28);
+        emitirTomSenoidal(ctx, 739.99, 0.16, 0.22, 0.28);
+        emitirTomSenoidal(ctx, 880.00, 0.32, 0.48, 0.30);
+      } else if (somAtivo === 'copom') {
+        // Opção Alternativa: Rádio COPOM / HT (bip duplo de rádio comunicador: 880Hz e 1100Hz)
         emitirTomSenoidal(ctx, 880, 0, 0.11, 0.3);
         emitirTomSenoidal(ctx, 1100, 0.13, 0.15, 0.3);
-      } else if (tipo === 'pager') {
-        // Opção 2: Pager Digital (4 bips curtos estilo relógio digital: 1760Hz)
+      } else if (somAtivo === 'pager') {
+        // Opção Alternativa: Pager Digital (4 bips curtos estilo relógio digital: 1760Hz)
         emitirTomSenoidal(ctx, 1760, 0, 0.05, 0.24);
         emitirTomSenoidal(ctx, 1760, 0.08, 0.05, 0.24);
         emitirTomSenoidal(ctx, 1760, 0.17, 0.05, 0.24);
         emitirTomSenoidal(ctx, 1760, 0.25, 0.05, 0.24);
-      } else if (tipo === 'dingdong') {
-        // Opção 3: Ding-Dong (dois acordes harmônicos suaves de chamada institucional: 660Hz -> 523Hz)
+      } else if (somAtivo === 'dingdong') {
+        // Opção Alternativa: Ding-Dong (dois acordes harmônicos suaves: 660Hz -> 523Hz)
         emitirTomSenoidal(ctx, 660, 0, 0.42, 0.32);
         emitirTomSenoidal(ctx, 523, 0.38, 0.65, 0.32);
-      } else if (tipo === 'chime') {
-        // Opção 4: Chime Suave (3 notas harmônicas ascendentes: D5 587Hz -> F#5 740Hz -> A5 880Hz)
-        emitirTomSenoidal(ctx, 587.33, 0, 0.22, 0.28);
-        emitirTomSenoidal(ctx, 739.99, 0.16, 0.22, 0.28);
-        emitirTomSenoidal(ctx, 880.00, 0.32, 0.48, 0.30);
       }
     }
 
-    function selecionarTipoSom(novoTipo, reproduzirExemplo = true) {
-      tipoSomAlarme = novoTipo;
-      localStorage.setItem('pmms_tipo_som_alarme', novoTipo);
-      atualizarBotoesSom();
-      if (reproduzirExemplo) {
-        tocarPadraoSom(novoTipo);
-      }
-      if (alarmeAtivoEmExecucao) {
-        iniciarSomAlarme();
-      }
-    }
-
-    function atualizarBotoesSom() {
-      const tipos = ['copom', 'pager', 'dingdong', 'chime'];
-      tipos.forEach(t => {
-        const btn = document.getElementById(`btnSom-${t}`);
-        if (btn) {
-          btn.classList.toggle('ativo', t === tipoSomAlarme);
-        }
-      });
-    }
-
-    // Som intermitente de alerta utilizando Web Audio API nativa
     function iniciarSomAlarme() {
       pararSomAlarme();
       try {
@@ -1835,12 +1850,12 @@
         tocarPadraoSom(tipoSomAlarme);
 
         const intervalos = {
+          chime: 1700,
           copom: 1400,
           pager: 1300,
-          dingdong: 1800,
-          chime: 1700
+          dingdong: 1800
         };
-        const tempo = intervalos[tipoSomAlarme] || 1500;
+        const tempo = intervalos[tipoSomAlarme] || 1700;
         alarmeIntervalId = setInterval(() => {
           tocarPadraoSom(tipoSomAlarme);
         }, tempo);
@@ -1856,14 +1871,19 @@
       }
     }
 
-    // Alternância do título da aba para chamar a atenção
+    // Alternância do título da aba e do Favicon para chamar máxima atenção visual
+    let faviconIntervalId = null;
+    let originalFaviconHref = null;
+
     function iniciarPiscarTitulo(hora, msg) {
       pararPiscarTitulo();
       let flag = false;
       titleBlinkInterval = setInterval(() => {
-        document.title = flag ? `🚨 [${hora}] ALARME SS - FALTAM 20 MIN! 🚨` : `⚠️ ATENÇÃO POLICIAL 14ª CIPM ⚠️`;
+        document.title = flag ? `🚨 [${hora}] ALARME SS - FALTAM ${antecedenciaAlarme} MIN! 🚨` : `⚠️ ATENÇÃO POLICIAL 14ª CIPM ⚠️`;
         flag = !flag;
       }, 500);
+
+      iniciarPiscarFavicon();
     }
 
     function pararPiscarTitulo() {
@@ -1871,6 +1891,55 @@
         clearInterval(titleBlinkInterval);
         titleBlinkInterval = null;
         document.title = originalDocumentTitle;
+      }
+      pararPiscarFavicon();
+    }
+
+    function iniciarPiscarFavicon() {
+      pararPiscarFavicon();
+      let link = document.querySelector("link[rel*='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'shortcut icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      if (!originalFaviconHref) {
+        originalFaviconHref = link.href || '../Brasão_PMMS.PNG';
+      }
+
+      function gerarIconeDataUrl(cor) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 32;
+        canvas.height = 32;
+        const c = canvas.getContext('2d');
+        c.beginPath();
+        c.arc(16, 16, 14, 0, 2 * Math.PI, false);
+        c.fillStyle = cor;
+        c.fill();
+        c.lineWidth = 2;
+        c.strokeStyle = '#ffffff';
+        c.stroke();
+        return canvas.toDataURL('image/png');
+      }
+
+      const iconVermelho = gerarIconeDataUrl('#ef4444');
+      const iconAzul = gerarIconeDataUrl('#3b82f6');
+      let flag = false;
+
+      faviconIntervalId = setInterval(() => {
+        link.href = flag ? iconVermelho : iconAzul;
+        flag = !flag;
+      }, 400);
+    }
+
+    function pararPiscarFavicon() {
+      if (faviconIntervalId) {
+        clearInterval(faviconIntervalId);
+        faviconIntervalId = null;
+      }
+      let link = document.querySelector("link[rel*='icon']");
+      if (link && originalFaviconHref) {
+        link.href = originalFaviconHref;
       }
     }
 
@@ -1906,31 +1975,33 @@
       // 3. Tenta focar na aba
       try {
         window.focus();
+        if (window.parent) window.parent.focus();
       } catch (e) {}
 
-      // 4. Som intermitente de alerta
+      // 4. Som intermitente suave (Chime)
       iniciarSomAlarme();
 
-      // 5. Título piscante na aba
+      // 5. Título e Favicon piscantes na aba do navegador
       iniciarPiscarTitulo(ev.hora, ev.mensagem);
 
-      // 6. Notificação do sistema operacional
+      // 6. Notificação persistente do sistema operacional (traz foco ao clicar)
       if ("Notification" in window && Notification.permission === "granted") {
         try {
-          const notif = new Notification("🚨 ALARME SS - Faltam 20 minutos!", {
-            body: `Solicitação: ${ev.mensagem}\nHorário previsto: ${ev.hora}`,
+          const notif = new Notification(`🚨 ALARME SS - Faltam ${minsRestantes} minutos!`, {
+            body: `Solicitação: ${ev.mensagem}\nHorário previsto: ${ev.hora}\n👉 Toque para focar no sistema.`,
             icon: "../Brasão_PMMS.PNG",
+            tag: chave,
             requireInteraction: true
           });
           notif.onclick = function() {
             window.focus();
+            if (window.parent) window.parent.focus();
             this.close();
           };
         } catch (e) {}
       }
 
-      // 7. Abre o modal com a mensagem simples e botões de escolha sonora
-      atualizarBotoesSom();
+      // 7. Abre o modal limpo e direto
       const elHora = document.getElementById('modalAlarmeHora');
       const elTitulo = document.getElementById('modalAlarmeTitulo');
       const elAtiv = document.getElementById('modalAlarmeAtividade');
@@ -1942,7 +2013,7 @@
         elAtiv.innerText = ev.atividade ? `Atividade: ${ev.atividade}` : 'Atividade: Conforme Cartão Programa / O.S.';
       }
       if (elBadge) {
-        elBadge.innerText = (minsRestantes === 20) ? `⏰ FALTAM 20 MINUTOS` : `⏰ FALTAM ${minsRestantes} MINUTOS`;
+        elBadge.innerText = `⏰ FALTAM ${minsRestantes} MINUTOS`;
       }
 
       const modal = document.getElementById('modalAlarmeOverlay');
@@ -1957,16 +2028,9 @@
       const modal = document.getElementById('modalAlarmeOverlay');
       if (modal) modal.style.display = 'none';
 
-      if (alarmeAtualChave) {
-        alarmesConfirmados.add(alarmeAtualChave);
-        try {
-          sessionStorage.setItem('pmms_alarmes_confirmados', JSON.stringify(Array.from(alarmesConfirmados)));
-        } catch (e) {}
-
-        // Remove a iluminação piscante
-        document.querySelectorAll('.card-alarme-ativo').forEach(el => el.classList.remove('card-alarme-ativo'));
-        document.querySelectorAll('.tr-alarme-ativo').forEach(el => el.classList.remove('tr-alarme-ativo'));
-      }
+      // Remove a iluminação pulsante dos cards e linhas
+      document.querySelectorAll('.card-alarme-ativo').forEach(el => el.classList.remove('card-alarme-ativo'));
+      document.querySelectorAll('.tr-alarme-ativo').forEach(el => el.classList.remove('tr-alarme-ativo'));
 
       alarmeAtivoEmExecucao = false;
       alarmeAtualChave = null;
@@ -1980,6 +2044,7 @@
       const agora = new Date();
       const dataHojeFormatada = formatarDataBR(agora);
       const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
+      const tempoAlvo = antecedenciaAlarme; // Padrão 20 minutos
 
       // Filtra as ocorrências do dia de hoje
       const ocorrenciasHoje = todasOcorrencias.filter(item => {
@@ -1994,6 +2059,8 @@
         return false;
       });
 
+      const disparadosHoje = obterAlarmesDisparadosHoje();
+
       for (let ev of ocorrenciasHoje) {
         if (!ev.hora) continue;
         const partes = ev.hora.trim().split(':');
@@ -2006,10 +2073,12 @@
         const minutosEvento = h * 60 + m;
         const diferencaMinutos = minutosEvento - minutosAgora;
 
-        // Dispara quando faltam 20 minutos (ou na janela de até 20 minutos antes do evento)
-        if (diferencaMinutos >= 0 && diferencaMinutos <= 20) {
-          const chave = gerarChaveOcorrencia(ev);
-          if (!alarmesConfirmados.has(chave)) {
+        // Dispara ESTRITAMENTE quando faltar exatamente o tempo configurado (ex: 20 minutos).
+        // Não apita faltando 10, 15 ou 5 minutos.
+        if (diferencaMinutos === tempoAlvo) {
+          const chave = gerarChaveAlarme(ev, tempoAlvo);
+          if (!disparadosHoje.has(chave)) {
+            registrarAlarmeDisparadoHoje(chave);
             dispararAlarmeOcorrencia(ev, chave, diferencaMinutos);
             break;
           }
@@ -2036,15 +2105,15 @@
       }
     }, { once: false });
 
-    // Função de teste para verificação imediata via console ou botão
+    // Função de teste disponível para a página /eventos/adm e console
     window.testarAlarme = function() {
       const evTeste = {
         data: formatarDataBR(new Date()),
         hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
         mensagem: "TESTE OPERACIONAL 14ª CIPM",
-        atividade: "Verificação da sombra policial (azul e vermelha) e seleção do tom do alarme."
+        atividade: "Verificação do tom sonoro e sombra policial (azul e vermelha)."
       };
-      dispararAlarmeOcorrencia(evTeste, "teste_ss_alarme_" + Date.now(), 20);
+      dispararAlarmeOcorrencia(evTeste, "teste_ss_alarme_" + Date.now(), antecedenciaAlarme);
     };
   </script>
 </body>
