@@ -621,6 +621,210 @@
       background: rgba(255, 255, 255, 0.35);
     }
 
+    /* ================= ALARME OPERACIONAL (20 MINUTOS ANTES) ================= */
+    @keyframes piscarPolicial {
+      0%, 100% {
+        background-color: #ef4444 !important;
+        border-color: #b91c1c !important;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.95), inset 0 0 15px rgba(239, 68, 68, 0.6) !important;
+        color: #ffffff !important;
+      }
+      50% {
+        background-color: #1d4ed8 !important;
+        border-color: #1e40af !important;
+        box-shadow: 0 0 25px rgba(29, 78, 216, 0.95), inset 0 0 15px rgba(29, 78, 216, 0.6) !important;
+        color: #ffffff !important;
+      }
+    }
+
+    .card-alarme-ativo {
+      animation: piscarPolicial 0.5s infinite alternate !important;
+      border: 3px solid #ef4444 !important;
+      transform: scale(1.025);
+      transition: all 0.2s ease;
+      position: relative;
+      z-index: 40;
+    }
+
+    .card-alarme-ativo .card-title,
+    .card-alarme-ativo .card-header,
+    .card-alarme-ativo strong {
+      color: #ffffff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    .card-alarme-ativo .card-atividade {
+      background: rgba(0, 0, 0, 0.45) !important;
+      border: 1px solid rgba(255, 255, 255, 0.5) !important;
+      color: #ffffff !important;
+    }
+
+    .card-alarme-ativo .badge-hora {
+      background: #000000 !important;
+      color: #facc15 !important;
+      border: 1px solid #facc15 !important;
+    }
+
+    .card-alarme-ativo .badge-tag {
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-weight: 900 !important;
+    }
+
+    /* Linha da tabela piscando em modo lista */
+    .tr-alarme-ativo {
+      animation: piscarPolicial 0.5s infinite alternate !important;
+      font-weight: 800 !important;
+    }
+
+    .tr-alarme-ativo td,
+    .tr-alarme-ativo span,
+    .tr-alarme-ativo strong {
+      color: #ffffff !important;
+    }
+
+    /* Modal de Alerta / Alarme Operacional */
+    .modal-alarme-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 99999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-alarme-box {
+      background: #ffffff;
+      border-radius: 14px;
+      max-width: 500px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      border: 3px solid #dc2626;
+      animation: modalSurgir 0.3s ease-out;
+      text-align: center;
+    }
+
+    @keyframes modalSurgir {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-alarme-header {
+      background: linear-gradient(135deg, #b91c1c 0%, #1e3a8a 100%);
+      color: #ffffff;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .modal-siren-icon {
+      font-size: 1.8rem;
+      animation: rotaSiren 0.8s infinite alternate;
+    }
+
+    @keyframes rotaSiren {
+      0% { transform: rotate(-15deg) scale(1); }
+      100% { transform: rotate(15deg) scale(1.15); }
+    }
+
+    .modal-alarme-header h2 {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .modal-alarme-body {
+      padding: 24px 20px;
+    }
+
+    .modal-alarme-tempo-badge {
+      display: inline-block;
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1.5px solid #f87171;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .modal-alarme-msg {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .modal-alarme-detalhes {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    .modal-alarme-hora {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #0c1a2d;
+      margin-bottom: 4px;
+    }
+
+    .modal-alarme-titulo {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .modal-alarme-ativ {
+      font-size: 0.85rem;
+      color: #475569;
+      line-height: 1.4;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 6px;
+    }
+
+    .modal-alarme-footer {
+      padding: 0 20px 24px;
+    }
+
+    .btn-alarme-ok {
+      width: 100%;
+      background: #16a34a;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+      transition: all 0.2s;
+    }
+
+    .btn-alarme-ok:hover {
+      background: #15803d;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(22, 163, 74, 0.5);
+    }
+
     /* Cabeçalho e Rodapé exclusivos para a folha de impressão */
     .print-header-sheet, .print-footer-sheet {
       display: none;
@@ -649,11 +853,13 @@
         border-radius: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
+        overflow: visible !important;
       }
 
       .content-area {
         padding: 0 !important;
         margin: 0 !important;
+        overflow: visible !important;
       }
 
       /* Esconde elementos de navegação e telas de tela */
@@ -670,7 +876,8 @@
       .auth-user-bar,
       .auth-box,
       .loading-spinner,
-      .empty-box {
+      .empty-box,
+      .modal-alarme-overlay {
         display: none !important;
       }
 
@@ -681,6 +888,7 @@
         border-radius: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
+        overflow: visible !important;
       }
 
       /* Exibe o cabeçalho impresso com o Brasão e identificação oficial */
@@ -729,8 +937,12 @@
       .compact-table {
         width: 100% !important;
         border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        border: 1px solid #475569 !important;
         font-size: 7.8pt !important;
         margin-bottom: 0 !important;
+        table-layout: fixed !important;
+        box-sizing: border-box !important;
       }
 
       .compact-table th {
@@ -741,6 +953,11 @@
         padding: 4px 6px !important;
         font-size: 7.5pt !important;
         border: 1px solid #475569 !important;
+        box-sizing: border-box !important;
+      }
+
+      .compact-table th:last-child {
+        border-right: 1px solid #475569 !important;
       }
 
       .compact-table td {
@@ -748,6 +965,13 @@
         border: 1px solid #94a3b8 !important;
         color: #000000 !important;
         line-height: 1.25 !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+      }
+
+      .compact-table td:last-child {
+        border-right: 1px solid #475569 !important;
       }
 
       .compact-table tr {
@@ -961,6 +1185,32 @@
       </div>
       <div id="authUserInfo" class="auth-user-bar" style="display: none;"></div>
     </footer>
+  </div>
+
+  <!-- Modal de Alarme / Aviso Operacional (20 Minutos Antes) -->
+  <div id="modalAlarmeOverlay" class="modal-alarme-overlay" style="display: none;">
+    <div class="modal-alarme-box">
+      <div class="modal-alarme-header">
+        <span class="modal-siren-icon">🚨</span>
+        <h2>AVISO OPERACIONAL 14ª CIPM</h2>
+      </div>
+      <div class="modal-alarme-body">
+        <div class="modal-alarme-tempo-badge" id="modalAlarmeBadge">⏰ FALTAM 20 MINUTOS</div>
+        <p class="modal-alarme-msg">
+          Atenção ao horário de início da Solicitação de Serviço:
+        </p>
+        <div class="modal-alarme-detalhes">
+          <div class="modal-alarme-hora" id="modalAlarmeHora">--:--</div>
+          <div class="modal-alarme-titulo" id="modalAlarmeTitulo">NOME DA SOLICITAÇÃO</div>
+          <div class="modal-alarme-ativ" id="modalAlarmeAtividade">Atividade prevista</div>
+        </div>
+      </div>
+      <div class="modal-alarme-footer">
+        <button type="button" class="btn-alarme-ok" onclick="confirmarAlarme()">
+          ✅ CIENTE / OK
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1324,13 +1574,15 @@
       let htmlCards = '';
       let htmlTable = '';
 
-      filtradas.forEach(ev => {
+      filtradas.forEach((ev, idx) => {
         const temArquivo = ev.arquivo && ev.arquivo.startsWith('http');
         const tag = (ev.data.toUpperCase() === 'TODO DIA') ? 'Ordem Diária' : 'Cartão Programa';
+        const chaveItem = gerarChaveOcorrencia(ev);
+        const estaAlarmeAtivo = (alarmeAtualChave === chaveItem);
 
         // Cartão para exibição na tela
         htmlCards += `
-          <div class="card-item">
+          <div class="card-item ${estaAlarmeAtivo ? 'card-alarme-ativo' : ''}" id="card-item-${idx}" data-chave="${chaveItem}">
             <div class="card-header">
               <span class="badge-hora">⏰ ${ev.hora || '--:--'}</span>
               <span class="badge-tag">${tag}</span>
@@ -1357,7 +1609,7 @@
 
         // Linha comprimida para folha A4 e Modo Lista
         htmlTable += `
-          <tr>
+          <tr class="${estaAlarmeAtivo ? 'tr-alarme-ativo' : ''}" id="tr-item-${idx}" data-chave="${chaveItem}">
             <td style="text-align: center; font-weight: 800; white-space: nowrap;">
               <span class="badge-compact-hora">${ev.hora || '--:--'}</span>
             </td>
@@ -1423,6 +1675,266 @@
       }
       window.print();
     }
+
+    // =========================================================================
+    // SISTEMA DE ALARME OPERACIONAL (20 MINUTOS ANTES DA SS)
+    // =========================================================================
+    let audioCtx = null;
+    let alarmeIntervalId = null;
+    let alarmeAtivoEmExecucao = false;
+    let alarmeAtualChave = null;
+    let titleBlinkInterval = null;
+    let originalDocumentTitle = document.title || "PMMS - 14ª CIPM | Solicitações de Serviços (SS)";
+    let alarmesConfirmados = new Set();
+
+    try {
+      const salvos = sessionStorage.getItem('pmms_alarmes_confirmados');
+      if (salvos) {
+        alarmesConfirmados = new Set(JSON.parse(salvos));
+      }
+    } catch (e) {}
+
+    function gerarChaveOcorrencia(ev) {
+      if (!ev) return '';
+      return `${normalizarData(ev.data)}_${(ev.hora || '').trim()}_${(ev.mensagem || '').trim()}`.replace(/\s+/g, '_');
+    }
+
+    // Som intermitente de alerta utilizando Web Audio API nativa
+    function iniciarSomAlarme() {
+      pararSomAlarme();
+      try {
+        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+        if (!audioCtx) {
+          audioCtx = new AudioCtxClass();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        let fase = 0;
+        function emitirBeep() {
+          if (!audioCtx) return;
+          try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            // Alterna frequências de alerta policial (950Hz e 1250Hz)
+            const freq = (fase % 2 === 0) ? 950 : 1250;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.22);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.22);
+
+            fase++;
+          } catch (err) {
+            console.warn("Erro ao emitir pulso sonoro:", err);
+          }
+        }
+
+        emitirBeep();
+        alarmeIntervalId = setInterval(emitirBeep, 380); // Som intermitente a cada 380ms
+      } catch (e) {
+        console.warn("AudioContext não suportado ou bloqueado:", e);
+      }
+    }
+
+    function pararSomAlarme() {
+      if (alarmeIntervalId) {
+        clearInterval(alarmeIntervalId);
+        alarmeIntervalId = null;
+      }
+    }
+
+    // Alternância do título da aba para chamar a atenção
+    function iniciarPiscarTitulo(hora, msg) {
+      pararPiscarTitulo();
+      let flag = false;
+      titleBlinkInterval = setInterval(() => {
+        document.title = flag ? `🚨 [${hora}] ALARME SS - FALTAM 20 MIN! 🚨` : `⚠️ ATENÇÃO POLICIAL 14ª CIPM ⚠️`;
+        flag = !flag;
+      }, 500);
+    }
+
+    function pararPiscarTitulo() {
+      if (titleBlinkInterval) {
+        clearInterval(titleBlinkInterval);
+        titleBlinkInterval = null;
+        document.title = originalDocumentTitle;
+      }
+    }
+
+    // Disparo oficial do alarme
+    function dispararAlarmeOcorrencia(ev, chave, minsRestantes) {
+      alarmeAtivoEmExecucao = true;
+      alarmeAtualChave = chave;
+
+      // 1. Traz a visualização para a data de hoje, caso o policial esteja em outra guia
+      const hoje = new Date();
+      const dRef = new Date(dataReferencia.getFullYear(), dataReferencia.getMonth(), dataReferencia.getDate());
+      const dHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+      if (Math.round((dRef - dHoje) / (1000 * 60 * 60 * 24)) !== 0) {
+        selecionarOffset(0);
+      } else {
+        renderizarOcorrencias();
+      }
+
+      // 2. Rola até o card da ocorrência com alarme
+      setTimeout(() => {
+        const cardEl = document.querySelector(`[data-chave="${chave}"]`);
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+
+      // 3. Tenta focar na aba
+      try {
+        window.focus();
+      } catch (e) {}
+
+      // 4. Som intermitente de alerta
+      iniciarSomAlarme();
+
+      // 5. Título piscante na aba
+      iniciarPiscarTitulo(ev.hora, ev.mensagem);
+
+      // 6. Notificação do sistema operacional
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          const notif = new Notification("🚨 ALARME SS - Faltam 20 minutos!", {
+            body: `Solicitação: ${ev.mensagem}\nHorário previsto: ${ev.hora}`,
+            icon: "../Brasão_PMMS.PNG",
+            requireInteraction: true
+          });
+          notif.onclick = function() {
+            window.focus();
+            this.close();
+          };
+        } catch (e) {}
+      }
+
+      // 7. Abre o modal com a mensagem simples e direta
+      const elHora = document.getElementById('modalAlarmeHora');
+      const elTitulo = document.getElementById('modalAlarmeTitulo');
+      const elAtiv = document.getElementById('modalAlarmeAtividade');
+      const elBadge = document.getElementById('modalAlarmeBadge');
+
+      if (elHora) elHora.innerText = `⏰ ${ev.hora || '--:--'}`;
+      if (elTitulo) elTitulo.innerText = ev.mensagem || 'SOLICITAÇÃO DE SERVIÇO';
+      if (elAtiv) {
+        elAtiv.innerText = ev.atividade ? `Atividade: ${ev.atividade}` : 'Atividade: Conforme Cartão Programa / O.S.';
+      }
+      if (elBadge) {
+        elBadge.innerText = (minsRestantes === 20) ? `⏰ FALTAM 20 MINUTOS` : `⏰ FALTAM ${minsRestantes} MINUTOS`;
+      }
+
+      const modal = document.getElementById('modalAlarmeOverlay');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    // Confirmação pelo policial ao clicar em "OK / CIENTE"
+    function confirmarAlarme() {
+      pararSomAlarme();
+      pararPiscarTitulo();
+
+      const modal = document.getElementById('modalAlarmeOverlay');
+      if (modal) modal.style.display = 'none';
+
+      if (alarmeAtualChave) {
+        alarmesConfirmados.add(alarmeAtualChave);
+        try {
+          sessionStorage.setItem('pmms_alarmes_confirmados', JSON.stringify(Array.from(alarmesConfirmados)));
+        } catch (e) {}
+
+        // Remove a iluminação piscante
+        document.querySelectorAll('.card-alarme-ativo').forEach(el => el.classList.remove('card-alarme-ativo'));
+        document.querySelectorAll('.tr-alarme-ativo').forEach(el => el.classList.remove('tr-alarme-ativo'));
+      }
+
+      alarmeAtivoEmExecucao = false;
+      alarmeAtualChave = null;
+    }
+
+    // Verificação periódica das ocorrências de hoje
+    function verificarAlarmesOcorrencias() {
+      if (!todasOcorrencias || todasOcorrencias.length === 0) return;
+      if (alarmeAtivoEmExecucao) return;
+
+      const agora = new Date();
+      const dataHojeFormatada = formatarDataBR(agora);
+      const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
+
+      // Filtra as ocorrências do dia de hoje
+      const ocorrenciasHoje = todasOcorrencias.filter(item => {
+        const itemData = normalizarData(item.data);
+        if (itemData === dataHojeFormatada) return true;
+        if (itemData.toUpperCase() === 'TODO DIA') return true;
+        if (itemData.includes('FEIRA') || itemData.includes('ª')) {
+          const mapDias = { 1: '2ª', 2: '3ª', 3: '4ª', 4: '5ª', 5: '6ª' };
+          const prefixo = mapDias[agora.getDay()];
+          if (prefixo && itemData.includes(prefixo)) return true;
+        }
+        return false;
+      });
+
+      for (let ev of ocorrenciasHoje) {
+        if (!ev.hora) continue;
+        const partes = ev.hora.trim().split(':');
+        if (partes.length < 2) continue;
+
+        const h = parseInt(partes[0], 10);
+        const m = parseInt(partes[1], 10);
+        if (isNaN(h) || isNaN(m)) continue;
+
+        const minutosEvento = h * 60 + m;
+        const diferencaMinutos = minutosEvento - minutosAgora;
+
+        // Dispara quando faltam 20 minutos (ou na janela de até 20 minutos antes do evento)
+        if (diferencaMinutos >= 0 && diferencaMinutos <= 20) {
+          const chave = gerarChaveOcorrencia(ev);
+          if (!alarmesConfirmados.has(chave)) {
+            dispararAlarmeOcorrencia(ev, chave, diferencaMinutos);
+            break;
+          }
+        }
+      }
+    }
+
+    // Inicia checagem contínua a cada 5 segundos
+    setInterval(verificarAlarmesOcorrencias, 5000);
+
+    // Desbloqueio de áudio e solicitação de permissão de notificação na primeira interação
+    document.addEventListener('click', function desbloquearRecursos() {
+      if (!audioCtx) {
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtxClass) audioCtx = new AudioCtxClass();
+        } catch (e) {}
+      } else if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    }, { once: false });
+
+    // Função de teste para verificação imediata via console
+    window.testarAlarme = function() {
+      const evTeste = {
+        data: formatarDataBR(new Date()),
+        hora: "TESTE",
+        mensagem: "TESTE OPERACIONAL 14ª CIPM",
+        atividade: "Verificação da sirene intermitente e piscar vermelho e azul."
+      };
+      dispararAlarmeOcorrencia(evTeste, "teste_ss_alarme", 20);
+    };
   </script>
 </body>
 </html>
