@@ -1521,6 +1521,14 @@
       }
     }
 
+    function gerarChaveOcorrencia(ev) {
+      if (!ev) return '';
+      const dataStr = normalizarData(ev.data) || formatarDataBR(new Date());
+      const horaStr = (ev.hora || '').trim();
+      const msgStr = (ev.mensagem || '').trim();
+      return `ss_${dataStr}_${horaStr}_${msgStr}`.replace(/\s+/g, '_');
+    }
+
     function renderizarOcorrencias() {
       const dataFormatada = formatarDataBR(dataReferencia);
       const diasSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
@@ -2076,10 +2084,11 @@
         // Dispara ESTRITAMENTE quando faltar exatamente o tempo configurado (ex: 20 minutos).
         // Não apita faltando 10, 15 ou 5 minutos.
         if (diferencaMinutos === tempoAlvo) {
-          const chave = gerarChaveAlarme(ev, tempoAlvo);
-          if (!disparadosHoje.has(chave)) {
-            registrarAlarmeDisparadoHoje(chave);
-            dispararAlarmeOcorrencia(ev, chave, diferencaMinutos);
+          const chaveOcorrencia = gerarChaveOcorrencia(ev);
+          const chaveRegistro = gerarChaveAlarme(ev, tempoAlvo);
+          if (!disparadosHoje.has(chaveRegistro)) {
+            registrarAlarmeDisparadoHoje(chaveRegistro);
+            dispararAlarmeOcorrencia(ev, chaveOcorrencia, diferencaMinutos);
             break;
           }
         }
