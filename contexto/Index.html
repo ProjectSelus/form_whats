@@ -621,6 +621,20 @@
       background: rgba(255, 255, 255, 0.35);
     }
 
+    .badge-auto-att {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      letter-spacing: 0.02em;
+    }
+
     /* ================= ALARME OPERACIONAL (20 MINUTOS ANTES) ================= */
     /* Alterna uma sombra/aura policial vibrante (vermelha e azul) em torno do card sem alterar seu fundo */
     @keyframes sombraPolicialCard {
@@ -1066,8 +1080,8 @@
     <!-- Conteúdo Principal -->
     <div class="content-area">
       
-      <!-- Bloco de Autenticação / Restrição de Acesso -->
-      <div id="authSection" class="auth-box">
+      <!-- Bloco de Autenticação / Restrição de Acesso (oculto por padrão para dispositivos já logados) -->
+      <div id="authSection" class="auth-box" style="display: none;">
         <div class="auth-icon" id="authIcon">🔒</div>
         <h2 class="auth-title" id="authTitle">Acesso Restrito ao Efetivo</h2>
         <p class="auth-desc" id="authDesc">
@@ -1082,7 +1096,8 @@
           <div id="g_id_onload"
                data-client_id="81878847414-f2lt8p7fbkjkh46julqdgfuhfcvau22o.apps.googleusercontent.com"
                data-callback="handleCredentialResponse"
-               data-auto_prompt="true">
+               data-auto_select="true"
+               data-auto_prompt="false">
           </div>
           <div class="g_id_signin"
                data-type="standard"
@@ -1105,6 +1120,19 @@
 
       <!-- Bloco Operacional (Escalas e Ordens de Serviço) -->
       <div id="mainContentSection" style="display: none;">
+        <script>
+          // Libera visualização instantaneamente em dispositivos já autorizados
+          (function() {
+            try {
+              var email = localStorage.getItem('pmms_user_email');
+              var aut = localStorage.getItem('pmms_dispositivo_autorizado');
+              if (email && (aut === 'true' || aut === null)) {
+                var sec = document.getElementById('mainContentSection');
+                if (sec) sec.style.display = 'block';
+              }
+            } catch(e) {}
+          })();
+        </script>
         
         <!-- Seletor de Guias (Dias) -->
         <div class="section-label">
@@ -1142,7 +1170,10 @@
         <!-- Faixa de Ocorrências -->
         <div class="section-banner">
           <span>OCORRÊNCIAS & ORDENS DE SERVIÇO</span>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span id="badgeAutoAtualizacao" class="badge-auto-att" title="Atualização automática a cada 1 hora">
+              🔄 Sincronizado: --:-- (auto 1h)
+            </span>
             <button type="button" class="btn-view-toggle" id="btnToggleModo" onclick="alternarModoVisualizacao()">📋 Ver em Lista</button>
             <span class="banner-counter" id="contadorOcorrencias">0 registo(s)</span>
           </div>
@@ -1291,6 +1322,14 @@
       }
     }
 
+    // Verifica se o token JWT do Google ainda está válido e com margem de segurança
+    function isTokenValido(token) {
+      if (!token) return false;
+      const payload = parseJwt(token);
+      if (!payload || !payload.exp) return false;
+      return (payload.exp * 1000) > (Date.now() + 60000);
+    }
+
     // Callback oficial executado quando o policial faz login com o Google
     function handleCredentialResponse(response) {
       if (!response || !response.credential) return;
@@ -1304,9 +1343,11 @@
       localStorage.setItem('pmms_id_token', response.credential);
       localStorage.setItem('pmms_user_email', payload.email);
       localStorage.setItem('pmms_user_name', payload.name || payload.email);
+      localStorage.setItem('pmms_dispositivo_autorizado', 'true');
+      localStorage.setItem('pmms_ultimo_login', Date.now().toString());
 
       atualizarBadgeUsuario(payload.name || payload.email, payload.email);
-      carregarDados();
+      carregarDados(false);
     }
 
     function atualizarBadgeUsuario(nome, email) {
@@ -1319,6 +1360,14 @@
     }
 
     function mostrarTelaLogin() {
+      // Dispositivos autorizados com e-mail salvo não têm a tela de trabalho bloqueada
+      const autorizado = localStorage.getItem('pmms_dispositivo_autorizado') === 'true';
+      const email = localStorage.getItem('pmms_user_email');
+      if (autorizado && email) {
+        console.warn("Dispositivo autorizado persistente - mantendo escala visível.");
+        return;
+      }
+
       document.getElementById('authSection').style.display = 'block';
       document.getElementById('mainContentSection').style.display = 'none';
       document.getElementById('authUserInfo').style.display = 'none';
@@ -1363,6 +1412,9 @@
       localStorage.removeItem('pmms_id_token');
       localStorage.removeItem('pmms_user_email');
       localStorage.removeItem('pmms_user_name');
+      localStorage.removeItem('pmms_dispositivo_autorizado');
+      localStorage.removeItem('pmms_ultimo_login');
+      localStorage.removeItem('pmms_cache_ocorrencias');
       
       if (window.google && google.accounts && google.accounts.id) {
         google.accounts.id.disableAutoSelect();
@@ -1371,20 +1423,42 @@
       mostrarTelaLogin();
     }
 
+    // Variáveis de controle de atualização automática (1 hora)
+    let dataUltimaSincronizacao = new Date();
+    let modoOffsetVisualizacao = 0; // 0 = Hoje, -1 = Ontem, 1 = Amanhã
+
     window.onload = function() {
       atualizarRotulosGuias();
       aplicarVisibilidadeBotoes();
 
-      const tokenSalvo = localStorage.getItem('pmms_id_token');
       const emailSalvo = localStorage.getItem('pmms_user_email');
       const nomeSalvo = localStorage.getItem('pmms_user_name');
 
       if (emailSalvo) {
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('mainContentSection').style.display = 'block';
         atualizarBadgeUsuario(nomeSalvo || emailSalvo, emailSalvo);
-        carregarDados();
+
+        // Renderiza instantaneamente o cache local para evitar telas em branco
+        try {
+          const cacheStr = localStorage.getItem('pmms_cache_ocorrencias');
+          if (cacheStr) {
+            const cacheDados = JSON.parse(cacheStr);
+            if (Array.isArray(cacheDados) && cacheDados.length > 0) {
+              todasOcorrencias = cacheDados;
+              renderizarOcorrencias();
+            }
+          }
+        } catch(e) {}
+
+        // Sincroniza em segundo plano sem travar a interface
+        carregarDados(todasOcorrencias.length > 0);
       } else {
         mostrarTelaLogin();
       }
+
+      // Inicia rotina de 1h e virada de data
+      iniciarRotinasAtualizacaoAutomatica();
     };
 
     function formatarDataBR(data) {
@@ -1417,6 +1491,7 @@
     }
 
     function selecionarOffset(offset) {
+      modoOffsetVisualizacao = offset;
       const d = new Date();
       d.setDate(d.getDate() + offset);
       dataReferencia = d;
@@ -1425,6 +1500,7 @@
     }
 
     function mudarDiaRelativo(delta) {
+      modoOffsetVisualizacao = null; // Modo navegação manual livre
       dataReferencia.setDate(dataReferencia.getDate() + delta);
       atualizarEstadoGuias();
       renderizarOcorrencias();
@@ -1441,9 +1517,29 @@
       document.getElementById('tabAmanha').classList.toggle('active', difDias === 1);
     }
 
-    function carregarDados() {
+    function atualizarIndicadorSincronizacao(status = 'ok', msg = '') {
+      const badge = document.getElementById('badgeAutoAtualizacao');
+      if (!badge) return;
+
+      const agora = new Date();
+      const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+      if (status === 'carregando') {
+        badge.innerHTML = `🔄 Sincronizando...`;
+        badge.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+      } else if (status === 'ok') {
+        badge.innerHTML = `🔄 Sincronizado: ${horaFormatada} (auto 1h)`;
+        badge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+      } else if (status === 'aviso') {
+        badge.innerHTML = `⚠️ ${msg || 'Dados locais mantidos'} (${horaFormatada})`;
+        badge.style.borderColor = 'rgba(234, 179, 8, 0.5)';
+      }
+    }
+
+    function carregarDados(silencioso = false) {
       const email = localStorage.getItem('pmms_user_email');
       const token = localStorage.getItem('pmms_id_token');
+      const dispositivoAutorizado = localStorage.getItem('pmms_dispositivo_autorizado') === 'true';
 
       // Se estiver rodando fora do Apps Script e não tiver e-mail salvo
       if (typeof google === 'undefined' || !google.script || !google.script.run) {
@@ -1453,17 +1549,25 @@
         }
       }
 
-      document.getElementById('cardsList').innerHTML = `
-        <div class="loading-spinner">
-          <div class="spin"></div>
-          A sincronizar com a escala...
-        </div>
-      `;
+      atualizarIndicadorSincronizacao('carregando');
+
+      // Se NÃO for silencioso e não houver dados, exibe o spinner de carregamento inicial
+      if (!silencioso && (!todasOcorrencias || todasOcorrencias.length === 0)) {
+        document.getElementById('cardsList').innerHTML = `
+          <div class="loading-spinner">
+            <div class="spin"></div>
+            A sincronizar com a escala...
+          </div>
+        `;
+      }
 
       function processarSucesso(resposta) {
         if (!resposta) {
-          document.getElementById('cardsList').innerHTML = `
-            <div class="empty-box"><span>⚠️</span><p>Resposta vazia da planilha.</p></div>`;
+          if (!todasOcorrencias || todasOcorrencias.length === 0) {
+            document.getElementById('cardsList').innerHTML = `
+              <div class="empty-box"><span>⚠️</span><p>Resposta vazia da planilha.</p></div>`;
+          }
+          atualizarIndicadorSincronizacao('aviso', 'Resposta vazia');
           return;
         }
 
@@ -1475,14 +1579,22 @@
 
         // Se o script solicitar login explicitamente
         if (resposta.requerLogin) {
+          if (dispositivoAutorizado) {
+            console.warn("Dispositivo autorizado - mantendo tela operacional ativa.");
+            atualizarIndicadorSincronizacao('aviso', 'Sessão mantida');
+            return;
+          }
           mostrarErroAuth("Acesso restrito. Por favor, conecte-se com sua conta Google autorizada.");
           mostrarTelaLogin();
           return;
         }
 
         if (resposta.erro) {
-          document.getElementById('cardsList').innerHTML = `
-            <div class="empty-box"><span>⚠️</span><p>${resposta.erro}</p></div>`;
+          if (!todasOcorrencias || todasOcorrencias.length === 0) {
+            document.getElementById('cardsList').innerHTML = `
+              <div class="empty-box"><span>⚠️</span><p>${resposta.erro}</p></div>`;
+          }
+          atualizarIndicadorSincronizacao('aviso', 'Falha ao sincronizar');
           return;
         }
 
@@ -1491,15 +1603,27 @@
         document.getElementById('mainContentSection').style.display = 'block';
 
         todasOcorrencias = resposta.ocorrencias || [];
+
+        // Salva cache das ocorrências no dispositivo
+        try {
+          localStorage.setItem('pmms_cache_ocorrencias', JSON.stringify(todasOcorrencias));
+        } catch(e) {}
+
+        dataUltimaSincronizacao = new Date();
+        atualizarIndicadorSincronizacao('ok');
         renderizarOcorrencias();
       }
 
       function processarErro(err) {
-        document.getElementById('cardsList').innerHTML = `
-          <div class="empty-box">
-            <span>❌</span>
-            <p>Erro na comunicação com a planilha: ${err.message || err}</p>
-          </div>`;
+        console.error("Erro na comunicação com a planilha:", err);
+        if (!todasOcorrencias || todasOcorrencias.length === 0) {
+          document.getElementById('cardsList').innerHTML = `
+            <div class="empty-box">
+              <span>❌</span>
+              <p>Erro na comunicação com a planilha: ${err.message || err}</p>
+            </div>`;
+        }
+        atualizarIndicadorSincronizacao('aviso', 'Modo offline');
       }
 
       // 1. Se estiver rodando dentro do próprio Apps Script
@@ -1511,14 +1635,47 @@
       } else {
         // 2. Se estiver rodando no GitHub Pages (ex: relatorio.zerog.com.br/eventos)
         let urlFetch = SCRIPT_API_URL + "?email=" + encodeURIComponent(email);
-        if (token) {
+        if (token && isTokenValido(token)) {
           urlFetch += "&token=" + encodeURIComponent(token);
         }
+        urlFetch += "&_t=" + Date.now();
+
         fetch(urlFetch)
           .then(res => res.json())
           .then(processarSucesso)
           .catch(processarErro);
       }
+    }
+
+    // =========================================================================
+    // ROTINA DE ATUALIZAÇÃO AUTOMÁTICA (1 HORA)
+    // =========================================================================
+    function iniciarRotinasAtualizacaoAutomatica() {
+      // 1. Atualização automática regular a cada 1 hora (3600000 ms)
+      setInterval(function() {
+        executarAtualizacaoAutomatica();
+      }, 60 * 60 * 1000);
+
+      // 2. Atualização ao retornar o foco ou reabrir a aba se passou mais de 1 hora
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          const decorrido = Date.now() - (dataUltimaSincronizacao ? dataUltimaSincronizacao.getTime() : 0);
+          if (decorrido >= 60 * 60 * 1000) {
+            executarAtualizacaoAutomatica();
+          }
+        }
+      });
+    }
+
+    function executarAtualizacaoAutomatica() {
+      // Se o policial estiver na guia "Hoje", sincroniza com a data atual
+      if (modoOffsetVisualizacao === 0) {
+        dataReferencia = new Date();
+      }
+
+      atualizarRotulosGuias();
+      atualizarEstadoGuias();
+      carregarDados(true); // Atualização silenciosa em background
     }
 
     function gerarChaveOcorrencia(ev) {
